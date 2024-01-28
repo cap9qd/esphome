@@ -54,6 +54,7 @@ from esphome.const import (
     PLATFORM_ESP32,
     PLATFORM_ESP8266,
     PLATFORM_RP2040,
+    PLATFORM_BK72XX,
     TYPE_GIT,
     TYPE_LOCAL,
     VALID_SUBSTITUTIONS_CHARACTERS,
@@ -597,6 +598,25 @@ only_on_esp8266 = only_on(PLATFORM_ESP8266)
 only_on_rp2040 = only_on(PLATFORM_RP2040)
 only_with_arduino = only_with_framework("arduino")
 only_with_esp_idf = only_with_framework("esp-idf")
+
+
+def check_bk72xx_family(families):
+    from esphome.components.libretiny import get_libretiny_family
+
+    """Validate that this option can only be specified on the given bk72xx family."""
+    if not isinstance(families, list):
+        families = [families]
+
+    def validator_(obj):
+        if get_libretiny_family() not in families and CORE.target_platform in [
+            PLATFORM_BK72XX
+        ]:
+            raise Invalid(
+                f"This feature is only available with BK72xx family {families}"
+            )
+        return obj
+
+    return validator_
 
 
 # Adapted from:

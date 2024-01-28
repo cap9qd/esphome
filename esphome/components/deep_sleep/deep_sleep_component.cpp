@@ -158,6 +158,14 @@ void DeepSleepComponent::begin_sleep(bool manual) {
 #ifdef USE_ESP8266
   ESP.deepSleep(*this->sleep_duration_);  // NOLINT(readability-static-accessed-through-instance)
 #endif
+
+#ifdef USE_LIBRETINY
+#ifdef USE_LIBRETINY_VARIANT_BK7231N
+    lt_deep_sleep_config_timer(*this->sleep_duration_ / 1000);
+    lt_deep_sleep_enter();
+#endif
+#endif
+
 }
 float DeepSleepComponent::get_setup_priority() const { return setup_priority::LATE; }
 void DeepSleepComponent::prevent_deep_sleep() { this->prevent_ = true; }

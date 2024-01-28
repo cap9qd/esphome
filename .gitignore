@@ -67,6 +67,7 @@ cov.xml
 *.cover
 .hypothesis/
 .pytest_cache/
+yaml/
 
 # Translations
 *.mo
