@@ -30,6 +30,19 @@ optional<uint32_t> DeepSleepComponent::get_run_duration_() const {
     }
   }
 #endif
+
+#ifdef USE_LIBRETINY
+  if (this->wakeup_cause_to_run_duration_.has_value()) {
+    lt_reboot_reason_t  wakeup_cause = lt_get_reboot_reason();
+    ESP_LOGD(TAG, "BK71XX wakeup reason '%s'", lt_get_reboot_reason_name(wakeup_cause));
+    switch (wakeup_cause) {
+      case REBOOT_REASON_SLEEP_GPIO:
+        return this->wakeup_cause_to_run_duration_->gpio_cause;
+      default:
+        return this->wakeup_cause_to_run_duration_->default_cause;
+    }
+  }
+#endif
   return this->run_duration_;
 }
 
@@ -58,10 +71,14 @@ void DeepSleepComponent::dump_config() {
   if (wakeup_pin_ != nullptr) {
     LOG_PIN("  Wakeup Pin: ", this->wakeup_pin_);
   }
+#endif
+#if defined(USE_ESP32) || defined(USE_LIBRETINY)
   if (this->wakeup_cause_to_run_duration_.has_value()) {
     ESP_LOGCONFIG(TAG, "  Default Wakeup Run Duration: %" PRIu32 " ms",
                   this->wakeup_cause_to_run_duration_->default_cause);
+#ifdef USE_ESP32
     ESP_LOGCONFIG(TAG, "  Touch Wakeup Run Duration: %" PRIu32 " ms", this->wakeup_cause_to_run_duration_->touch_cause);
+#endif
     ESP_LOGCONFIG(TAG, "  GPIO Wakeup Run Duration: %" PRIu32 " ms", this->wakeup_cause_to_run_duration_->gpio_cause);
   }
 #endif
@@ -80,8 +97,7 @@ void DeepSleepComponent::set_wakeup_pin_mode(WakeupPinMode wakeup_pin_mode) {
 }
 #endif
 
-#if defined(USE_ESP32)
-#if !defined(USE_ESP32_VARIANT_ESP32C3)
+#if defined(USE_ESP32) && !defined(USE_ESP32_VARIANT_ESP32C3)
 
 void DeepSleepComponent::set_ext1_wakeup(Ext1Wakeup ext1_wakeup) { this->ext1_wakeup_ = ext1_wakeup; }
 
@@ -89,10 +105,23 @@ void DeepSleepComponent::set_touch_wakeup(bool touch_wakeup) { this->touch_wakeu
 
 #endif
 
+#if defined(USE_ESP32) || defined(USE_LIBRETINY)
 void DeepSleepComponent::set_run_duration(WakeupCauseToRunDuration wakeup_cause_to_run_duration) {
   wakeup_cause_to_run_duration_ = wakeup_cause_to_run_duration;
 }
+#endif
 
+#ifdef USE_LIBRETINY
+void DeepSleepComponent::set_lt_gpio_wake(uint8_t pin, LtWakeupPinMode pin_mode) { 
+    ESP_LOGCONFIG(TAG, "Setting BK GPIO wake on pin %d with mode %d", pin, pin_mode);
+    lt_gpio_wake_config_[pin] = pin_mode;
+}
+
+void DeepSleepComponent::set_lt_gpio_wake(InternalGPIOPin *pin, LtWakeupPinMode pin_mode) {
+    pin->setup();
+    ESP_LOGCONFIG(TAG, "Setting BK GPIO wake on pin %d with mode %d", pin, pin_mode);
+    lt_gpio_wake_config_[pin->get_pin()] = pin_mode;
+}
 #endif
 
 void DeepSleepComponent::set_run_duration(uint32_t time_ms) { this->run_duration_ = time_ms; }
@@ -113,6 +142,41 @@ void DeepSleepComponent::begin_sleep(bool manual) {
     return;
   }
 #endif
+
+#ifdef USE_LIBRETINY
+    if(lt_gpio_wake_config_.size() > 0) {
+        for (i = lt_gpio_wake_config_.begin(); i != lt_gpio_wake_config_.end(); i++) {
+            bool digital_val = digitalRead((*i).first);
+            switch((*i).second) {
+                case WAKEUP_PIN_MODE_LOW_IGNORE:
+                case WAKEUP_PIN_MODE_HIGH_IGNORE:
+                case WAKEUP_PIN_MODE_SWAP_LEVEL:
+                    break;
+                case WAKEUP_PIN_MODE_LOW_KEEP_AWAKE:
+                    if(digital_val == false) {
+                        if (!this->next_enter_deep_sleep_) {
+                            this->status_set_warning();
+                            ESP_LOGW(TAG, "Waiting for pin %d to switch state to %d to enter deep sleep...", (*i).first, !(*i).second);
+                        }
+                        this->next_enter_deep_sleep_ = true;
+                        return;
+                    }
+                    break;
+                case WAKEUP_PIN_MODE_HIGH_KEEP_AWAKE:
+                    if(digital_val == true) {
+                        if (!this->next_enter_deep_sleep_) {
+                            this->status_set_warning();
+                            ESP_LOGW(TAG, "Waiting for pin %d to switch state to %d to enter deep sleep...", (*i).first, !(*i).second);
+                        }
+                        this->next_enter_deep_sleep_ = true;
+                        return;
+                    }
+                    break;
+            }
+        }
+    }
+#endif
+
 
   ESP_LOGI(TAG, "Beginning Deep Sleep");
   if (this->sleep_duration_.has_value()) {
@@ -160,10 +224,51 @@ void DeepSleepComponent::begin_sleep(bool manual) {
 #endif
 
 #ifdef USE_LIBRETINY
-#ifdef USE_LIBRETINY_VARIANT_BK7231N
-    lt_deep_sleep_config_timer(*this->sleep_duration_ / 1000);
+    if(this->sleep_duration_.has_value())
+        lt_deep_sleep_config_timer(*this->sleep_duration_ / 1000);
+    
+    if(lt_gpio_wake_config_.size() > 0) {
+        for (i = lt_gpio_wake_config_.begin(); i != lt_gpio_wake_config_.end(); i++) {
+            bool digital_val = digitalRead((*i).first);
+            
+            switch((*i).second)
+            {
+                case WAKEUP_PIN_MODE_LOW_IGNORE:
+                    if(digital_val == false) {
+                        lt_deep_sleep_unset_gpio(1<<(*i).first);
+                        ESP_LOGW(TAG, "Pin %d already in desired state LOW; ignoring...", (*i).first);
+                        if(!this->sleep_duration_.has_value())
+                            ESP_LOGW(TAG, "No sleep duration and ignoring GPIO wake. May never wakeup?");
+                    } else {
+                        lt_deep_sleep_config_gpio(1<<(*i).first, false);
+                    }
+                    break;
+                case WAKEUP_PIN_MODE_HIGH_IGNORE:
+                    if(digital_val == true) {
+                        lt_deep_sleep_unset_gpio(1<<(*i).first);
+                        ESP_LOGW(TAG, "Pin %d already in desired state HIGH; ignoring...", (*i).first);
+                        if(!this->sleep_duration_.has_value())
+                            ESP_LOGW(TAG, "No sleep duration and ignoring GPIO wake. May never wakeup?");
+                    } else {
+                        lt_deep_sleep_config_gpio(1<<(*i).first, true);
+                    }
+                    break;
+                case WAKEUP_PIN_MODE_SWAP_LEVEL:
+                    ESP_LOGW(TAG, "Swapping pin %d wake-up level to %d", (*i).first, !digital_val);
+                    lt_deep_sleep_unset_gpio(1<<(*i).first);
+                    lt_deep_sleep_config_gpio(1<<(*i).first, !digital_val);
+                    break;
+                case WAKEUP_PIN_MODE_LOW_KEEP_AWAKE:
+                    lt_deep_sleep_config_gpio(1<<(*i).first, false);
+                    break;
+                case WAKEUP_PIN_MODE_HIGH_KEEP_AWAKE:
+                    lt_deep_sleep_config_gpio(1<<(*i).first, true);
+                    break;
+            }
+        }
+    }
+
     lt_deep_sleep_enter();
-#endif
 #endif
 
 }

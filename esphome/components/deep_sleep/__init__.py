@@ -9,6 +9,7 @@ from esphome.const import (
     CONF_MODE,
     CONF_NUMBER,
     CONF_PINS,
+    CONF_PIN,
     CONF_RUN_DURATION,
     CONF_SECOND,
     CONF_SLEEP_DURATION,
@@ -19,6 +20,7 @@ from esphome.const import (
     PLATFORM_BK72XX,
 )
 
+from esphome.components.libretiny import get_libretiny_family
 from esphome.components.libretiny.const import (
     FAMILY_BK7231N,
 )
@@ -107,6 +109,7 @@ WAKEUP_PINS = {
     VARIANT_ESP32C2: [0, 1, 2, 3, 4, 5],
     VARIANT_ESP32C6: [0, 1, 2, 3, 4, 5, 6, 7],
     VARIANT_ESP32H2: [7, 8, 9, 10, 11, 12, 13, 14],
+    FAMILY_BK7231N: [0, 6, 7, 8, 9, 10, 11, 14, 20, 21, 22, 23, 24, 26],
 }
 
 
@@ -116,6 +119,24 @@ def validate_pin_number(value):
         raise cv.Invalid(
             f"Only pins {', '.join(str(x) for x in valid_pins)} support wakeup"
         )
+    return value
+
+
+def validate_pin_number_lt(value):
+    valid_pins = WAKEUP_PINS.get(get_libretiny_family())
+    for pin in value:
+        if CONF_PIN in pin.keys() and CONF_NUMBER in pin.keys():
+            raise cv.Invalid("Only a PIN or NUMBER can be defined per list.")
+        if CONF_PIN in pin.keys():
+            if pin[CONF_PIN][CONF_NUMBER] not in valid_pins:
+                raise cv.Invalid(
+                    f"Only pins {', '.join(str(x) for x in valid_pins)} support wakeup"
+                )
+        if CONF_NUMBER in pin.keys():
+            if pin[CONF_NUMBER] not in valid_pins:
+                raise cv.Invalid(
+                    f"Only pins {', '.join(str(x) for x in valid_pins)} support wakeup"
+                )
     return value
 
 
@@ -156,6 +177,16 @@ EXT1_WAKEUP_MODES = {
 }
 WakeupCauseToRunDuration = deep_sleep_ns.struct("WakeupCauseToRunDuration")
 
+LtWakeupPinMode = deep_sleep_ns.enum("LtWakeupPinMode")
+LT_WAKEUP_PIN_MODES = {
+    "LOW_IGNORE": LtWakeupPinMode.WAKEUP_PIN_MODE_LOW_IGNORE,
+    "LOW_KEEP_AWAKE": LtWakeupPinMode.WAKEUP_PIN_MODE_LOW_KEEP_AWAKE,
+    "HIGH_IGNORE": LtWakeupPinMode.WAKEUP_PIN_MODE_HIGH_IGNORE,
+    "HIGH_KEEP_AWAKE": LtWakeupPinMode.WAKEUP_PIN_MODE_HIGH_KEEP_AWAKE,
+    "SWAP_LEVEL": LtWakeupPinMode.WAKEUP_PIN_MODE_SWAP_LEVEL,
+}
+CONF_PIN_MODE = "pin_mode"
+
 CONF_WAKEUP_PIN_MODE = "wakeup_pin_mode"
 CONF_ESP32_EXT1_WAKEUP = "esp32_ext1_wakeup"
 CONF_TOUCH_WAKEUP = "touch_wakeup"
@@ -164,10 +195,19 @@ CONF_GPIO_WAKEUP_REASON = "gpio_wakeup_reason"
 CONF_TOUCH_WAKEUP_REASON = "touch_wakeup_reason"
 CONF_UNTIL = "until"
 
+CONF_BK71XX_GPIO_WAKEUP = "bk71xx_gpio_wakeup"
+
 WAKEUP_CAUSES_SCHEMA = cv.Schema(
     {
         cv.Required(CONF_DEFAULT): cv.positive_time_period_milliseconds,
         cv.Optional(CONF_TOUCH_WAKEUP_REASON): cv.positive_time_period_milliseconds,
+        cv.Optional(CONF_GPIO_WAKEUP_REASON): cv.positive_time_period_milliseconds,
+    }
+)
+
+WAKEUP_CAUSES_SCHEMA_LT = cv.Schema(
+    {
+        cv.Required(CONF_DEFAULT): cv.positive_time_period_milliseconds,
         cv.Optional(CONF_GPIO_WAKEUP_REASON): cv.positive_time_period_milliseconds,
     }
 )
@@ -178,6 +218,7 @@ CONFIG_SCHEMA = cv.All(
             cv.GenerateID(): cv.declare_id(DeepSleepComponent),
             cv.Optional(CONF_RUN_DURATION): cv.Any(
                 cv.All(cv.only_on_esp32, WAKEUP_CAUSES_SCHEMA),
+                cv.All(cv.only_on(PLATFORM_BK72XX), WAKEUP_CAUSES_SCHEMA_LT),
                 cv.positive_time_period_milliseconds,
             ),
             cv.Optional(CONF_SLEEP_DURATION): cv.positive_time_period_milliseconds,
@@ -201,6 +242,21 @@ CONFIG_SCHEMA = cv.All(
                 ),
             ),
             cv.Optional(CONF_TOUCH_WAKEUP): cv.All(cv.only_on_esp32, cv.boolean),
+            cv.Optional(CONF_BK71XX_GPIO_WAKEUP): cv.All(
+                cv.only_on(PLATFORM_BK72XX),
+                cv.ensure_list(
+                    cv.Schema(
+                        {
+                            cv.Optional(CONF_NUMBER): cv.int_,
+                            cv.Optional(CONF_PIN): pins.internal_gpio_input_pin_schema,
+                            cv.Required(CONF_PIN_MODE): cv.enum(
+                                LT_WAKEUP_PIN_MODES, upper=True
+                            ),
+                        }
+                    ),
+                ),
+                validate_pin_number_lt,
+            ),
         }
     ).extend(cv.COMPONENT_SCHEMA),
     cv.only_on([PLATFORM_ESP32, PLATFORM_ESP8266, PLATFORM_BK72XX]),
@@ -252,6 +308,16 @@ async def to_code(config):
             Ext1Wakeup, ("mask", mask), ("wakeup_mode", conf[CONF_MODE])
         )
         cg.add(var.set_ext1_wakeup(struct))
+
+    if CONF_BK71XX_GPIO_WAKEUP in config:
+        conf = config[CONF_BK71XX_GPIO_WAKEUP]
+
+        for pin in conf:
+            if CONF_NUMBER in pin.keys():
+                cg.add(var.set_lt_gpio_wake(pin[CONF_NUMBER], pin[CONF_PIN_MODE]))
+            elif CONF_PIN in pin.keys():
+                gpio_pin = await cg.gpio_pin_expression(pin[CONF_PIN])
+                cg.add(var.set_lt_gpio_wake(gpio_pin, pin[CONF_PIN_MODE]))
 
     if CONF_TOUCH_WAKEUP in config:
         cg.add(var.set_touch_wakeup(config[CONF_TOUCH_WAKEUP]))

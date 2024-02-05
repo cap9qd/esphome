@@ -15,6 +15,7 @@
 #endif
 
 #include <cinttypes>
+#include <map>
 
 namespace esphome {
 namespace deep_sleep {
@@ -38,7 +39,9 @@ struct Ext1Wakeup {
   uint64_t mask;
   esp_sleep_ext1_wakeup_mode_t wakeup_mode;
 };
+#endif
 
+#if defined(USE_ESP32) || defined(USE_LIBRETINY)
 struct WakeupCauseToRunDuration {
   // Run duration if woken up by timer or any other reason besides those below.
   uint32_t default_cause;
@@ -47,7 +50,16 @@ struct WakeupCauseToRunDuration {
   // Run duration if woken up by GPIO pins.
   uint32_t gpio_cause;
 };
+#endif
 
+#ifdef USE_LIBRETINY
+enum LtWakeupPinMode {
+  WAKEUP_PIN_MODE_LOW_IGNORE = 0,       ///< Set to low level wakeup, ignore pin if low at sleep
+  WAKEUP_PIN_MODE_LOW_KEEP_AWAKE,       ///< Set to low level wakeup, wait for pin to go low at sleep
+  WAKEUP_PIN_MODE_HIGH_IGNORE,          ///< Set to high level wakeup, ignore pin if high at sleep
+  WAKEUP_PIN_MODE_HIGH_KEEP_AWAKE,      ///< Set to high level wakeup, wait for pin to go high at sleep
+  WAKEUP_PIN_MODE_SWAP_LEVEL,           ///< Set to either level for wakeup, invert current state at sleep. (Doesnt work if internal pull-ups required!)
+};
 #endif
 
 template<typename... Ts> class EnterDeepSleepAction;
@@ -73,17 +85,24 @@ class DeepSleepComponent : public Component {
   void set_wakeup_pin_mode(WakeupPinMode wakeup_pin_mode);
 #endif
 
-#if defined(USE_ESP32)
-#if !defined(USE_ESP32_VARIANT_ESP32C3)
+#if defined(USE_ESP32) && !defined(USE_ESP32_VARIANT_ESP32C3)
 
   void set_ext1_wakeup(Ext1Wakeup ext1_wakeup);
 
   void set_touch_wakeup(bool touch_wakeup);
 
 #endif
+
+#if defined(USE_ESP32) || defined(USE_LIBRETINY)
+
   // Set the duration in ms for how long the code should run before entering
   // deep sleep mode, according to the cause the ESP32 has woken.
   void set_run_duration(WakeupCauseToRunDuration wakeup_cause_to_run_duration);
+#endif
+
+#if defined(USE_LIBRETINY)
+  void set_lt_gpio_wake(uint8_t pin, LtWakeupPinMode pin_mode);
+  void set_lt_gpio_wake(InternalGPIOPin *pin, LtWakeupPinMode pin_mode);
 #endif
 
   /// Set a duration in ms for how long the code should run before entering deep sleep mode.
@@ -112,8 +131,18 @@ class DeepSleepComponent : public Component {
   WakeupPinMode wakeup_pin_mode_{WAKEUP_PIN_MODE_IGNORE};
   optional<Ext1Wakeup> ext1_wakeup_;
   optional<bool> touch_wakeup_;
+#endif
+
+#if defined(USE_ESP32) || defined(USE_LIBRETINY)
   optional<WakeupCauseToRunDuration> wakeup_cause_to_run_duration_;
 #endif
+
+#ifdef USE_LIBRETINY
+  std::map<uint8_t, LtWakeupPinMode> lt_gpio_wake_config_;
+  std::map <uint8_t, LtWakeupPinMode> :: iterator i;
+  LtWakeupPinMode lt_wakeup_pin_mode_;
+#endif
+
   optional<uint32_t> run_duration_;
   bool next_enter_deep_sleep_{false};
   bool prevent_{false};
