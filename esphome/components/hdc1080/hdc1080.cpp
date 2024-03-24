@@ -11,14 +11,25 @@ static const uint8_t HDC1080_ADDRESS = 0x40;  // 0b1000000 from datasheet
 static const uint8_t HDC1080_CMD_CONFIGURATION = 0x02;
 static const uint8_t HDC1080_CMD_TEMPERATURE = 0x00;
 static const uint8_t HDC1080_CMD_HUMIDITY = 0x01;
+static const uint8_t HDC1080_REG_VERSION = 0xFF;
 
 void HDC1080Component::setup() {
   ESP_LOGCONFIG(TAG, "Setting up HDC1080...");
 
+  esphome::i2c::ErrorCode stat;
+  stat = this->read_register(0xFF, reinterpret_cast<uint8_t *>(&chip_ver), 2, 1);
+  chip_ver = i2c::i2ctohs(chip_ver);
+  ESP_LOGD(TAG, "ChipVer read Stat = %d & chip ver=%X", stat, chip_ver);
+  
+  if(chip_ver == 0x8515) {
+    ESP_LOGE(TAG, "CHIP IS CHT8310! Use other driver!");
+    this->status_set_warning();
+    return;
+  }
   const uint8_t data[2] = {
-      0b00000000,  // resolution 14bit for both humidity and temperature
-      0b00000000   // reserved
-  };
+        0b00000000,  // resolution 14bit for both humidity and temperature
+        0b00000000   // reserved
+    };
 
   if (!this->write_bytes(HDC1080_CMD_CONFIGURATION, data, 2)) {
     // as instruction is same as powerup defaults (for now), interpret as warning if this fails
@@ -38,6 +49,7 @@ void HDC1080Component::dump_config() {
   LOG_SENSOR("  ", "Humidity", this->humidity_);
 }
 void HDC1080Component::update() {
+  
   uint16_t raw_temp;
   if (this->write(&HDC1080_CMD_TEMPERATURE, 1) != i2c::ERROR_OK) {
     this->status_set_warning();
@@ -48,6 +60,7 @@ void HDC1080Component::update() {
     this->status_set_warning();
     return;
   }
+  
   raw_temp = i2c::i2ctohs(raw_temp);
   float temp = raw_temp * 0.0025177f - 40.0f;  // raw * 2^-16 * 165 - 40
   this->temperature_->publish_state(temp);
