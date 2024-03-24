@@ -1,0 +1,58 @@
+esphome:
+  name: shelly-rgbw2-f2d94a
+  platform: ESP8266
+  board: esp01_1m
+  
+# Enable Home Assistant API
+api:
+  encryption:
+    key: "T1ghJ9956Ltf4i7LSfqkuiFFcyIrxWY0RpSDkRVG8+4="
+
+ota:
+  password: "ba52415e0a813f692cbc749d3167e6ff"
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+  
+  ap:
+    ssid: "Shelly-Rgbw Fallback Hotspot"
+    password: "iL9gU4wFuP7p"
+    
+web_server:
+  port: 80
+
+logger:
+
+light:
+  - platform: rgbw
+    name: ledstrip_shelly_rgbw2
+    red: pwm_r
+    green: pwm_g
+    blue: pwm_b
+    white: pwm_w
+    effects:
+      - random:
+      - strobe:
+      - flicker:
+
+output:
+  - platform: esp8266_pwm
+    pin: GPIO12
+    frequency: 1000 Hz
+    id: pwm_r
+
+  - platform: esp8266_pwm
+    pin: GPIO15
+    frequency: 1000 Hz
+    id: pwm_g
+
+  - platform: esp8266_pwm
+    pin: GPIO14
+    frequency: 1000 Hz
+    id: pwm_b
+
+  - platform: esp8266_pwm
+    pin: GPIO4
+    frequency: 1000 Hz
+    id: pwm_w

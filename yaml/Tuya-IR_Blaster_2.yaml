@@ -1,0 +1,27 @@
+esphome:
+  name: tuya-ir-blaster2
+
+bk72xx:
+  board: cb3s
+
+# Enable logging
+logger:
+
+# Enable Home Assistant API
+api:
+  password: ""
+
+ota:
+  password: ""
+
+wifi:
+  ssid: "NETGEAR14"
+  password: "royaljungle962"
+
+  # Enable fallback hotspot (captive portal) in case wifi connection fails
+  ap:
+    ssid: "Tuya-Ir-Blaster2"
+    password: "RmjT7p3AHvn4"
+
+captive_portal:
+    

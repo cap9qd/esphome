@@ -1,0 +1,140 @@
+#https://community.home-assistant.io/t/how-to-take-n-adc-samples-and-stop-by-sleeping/496012/14
+esphome:
+  name: "esp32-adc-sleep"
+  # logger.log: calls will only show on UART until the API connects...
+  on_boot:
+    priority: -100.0
+    then:
+    - logger.log: "Waiting for the API to connect..."
+    - wait_until:
+        condition:
+          api.connected:
+    - if:
+        condition:
+          api.connected:
+        then:
+          - logger.log: "API Connected"
+        else:
+          - logger.log: "API NOT Connected"  
+    - logger.log: "I'm still in the on_boot code..."
+
+# Awaiting help from the forum....
+# ... on how to avoid the "- delay: 5s"
+# https://community.home-assistant.do/t/how-to-test-the-returned-id-binary-sensor-state-is-valid/497299
+    - delay: 5s
+    - logger.log:
+        format: 'Prevent Sleep Flag is set to: %i'
+        args: [id(prevent_deep_sleep).state]
+
+
+    - if:
+        condition:
+          binary_sensor.is_on: prevent_deep_sleep
+        then:
+          - logger.log: "Turning ON LED"
+          - output.turn_on: blue_led
+          - logger.log: "Sampling stopped!"
+          - logger.log: "Waiting for OTA Update..."
+          - logger.log: "UnTag flag and run OTA Update..."
+          - wait_until:
+              condition:
+                lambda: |-
+                  return false; 
+          - logger.log: "I'm hoping that this never gets printed!"
+              
+        else:
+          - repeat:
+              count: 5
+              then:
+              - component.update: lei_volts
+              - delay: 10ms
+              - logger.log: "Reading 'n' of 5 ADC samples..."
+              #https://community.home-assistant.io/t/how-do-i-print-the-value-of-a-loop-counter/497365
+          
+          - logger.log: "Turning OFF LED"
+          - output.turn_off: blue_led
+          - logger.log: 'Entering Deep Sleep'
+          - deep_sleep.enter: deep_sleep_control
+
+esp32:
+  board: esp32dev  
+  framework:
+    type: arduino    
+
+# Enable logging
+logger:
+  level: DEBUG
+
+# Enable Home Assistant API
+api:
+  
+ota:
+  password: !secret ota_password
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+  fast_connect: true
+
+output:
+  platform: gpio
+  pin: GPIO2      #The only led I've got
+  id: blue_led
+
+# Look to the Home Assistant UI to find a flag ...
+# ... this flag is used to tell this program ...
+# ... whether to continue its "Read ADC/Sleep" cycle ...
+# ... or if it should "stay awake" in preparation ...
+# ... for an OTA update.
+binary_sensor:
+  - platform: homeassistant
+    id: prevent_deep_sleep
+    entity_id: input_boolean.prevent_deep_sleep
+    # Use the on-board blue LED (GPIO2) to ...
+    # ... give feedback. Only needed during development ...
+    # ... but kept active as there no overhead.
+    on_state:
+      then:
+        if:
+          condition:
+            binary_sensor.is_on: prevent_deep_sleep
+          then:
+            - logger.log: "Turning ON LED"
+            - logger.log:
+                format: "Sleep Flag is: %i"
+                args: ['id(prevent_deep_sleep).state']
+            - output.turn_on: blue_led
+          else:
+            - logger.log: "Turning OFF LED"
+            - logger.log:
+                format: "Sleep Flag is: %i"
+                args: ['id(prevent_deep_sleep).state']
+            - output.turn_off: blue_led
+ 
+                
+# Do not let sensor run in the background ...
+# ... ie "update_interval: never"
+# The ADC will be triggered as required (- component.update: volts) ...
+# ... by the "repeat: count:" in the "on-boot" action.
+sensor:
+  - platform: adc
+    pin: GPIO36
+    id: lei_volts
+    name: "Leisure Battery"
+    update_interval: never    
+    attenuation: auto
+    accuracy_decimals: 2
+    filters:
+    - median:
+        window_size: 5
+        send_every: 5
+        send_first_at: 5
+
+# Do not let sleep run in the background...
+# ... ie no run-duration:
+# It is called (- deep_sleep.enter: deep_sleep_control) from ...
+# ... the on_boot: action (at head of this .yaml)
+deep_sleep:
+  id: deep_sleep_control
+#  run_duration: 1s
+  sleep_duration: 1min

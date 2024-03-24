@@ -1,0 +1,118 @@
+esphome:
+  name: tuya-temphumid
+  name_add_mac_suffix: true
+  on_boot:
+    priority: -100
+    then:
+      - light.turn_on: wifi_status
+      - delay: 500ms
+      - while:
+          condition:
+            not:
+              wifi.connected
+          then:
+            - light.toggle: wifi_status
+            - delay: 500ms
+      - logger.log: "WiFi Connected!"
+      - light.turn_on: wifi_status
+      - logger.log: "Waiting for the API to connect..."
+      - wait_until:
+          condition:
+            api.connected:
+      - if:
+          condition:
+            api.connected:
+          then:
+            - logger.log: "API Connected"
+          else:
+            - logger.log: "API NOT Connected"  
+      
+bk72xx:
+  board: cbu
+  framework:
+    version: 0.0.0
+    source: https://github.com/cap9qd/libretiny.git#feature/i2c-spi
+    
+logger:
+  baud_rate: 115200
+  level: DEBUG
+  hardware_uart: UART1
+
+web_server:
+  port: 80
+
+captive_portal:
+
+api:
+  encryption:
+    key: "mdpNNAkhq8oHz70F70BfDYPO7SMsU7j5ikGmXoNhpmg="
+
+ota:
+  password: "82f3fcc3db4d823f807f9115b79759f4"
+
+wifi:
+  networks:
+    - ssid: !secret wifi_ssid
+      password: !secret wifi_password
+
+  ap:
+    ssid: "TuYa Dev Blue Hotspot"
+    password: "17jiH7OW8C4Q"
+
+binary_sensor:
+  - platform: gpio
+    pin: 
+      number: P14
+      inverted: true
+    name: "Button"
+  - platform: gpio
+    id: alert
+    pin: 
+      number: P7
+      inverted: true
+    name: "Alert"
+    
+output:
+  - platform: gpio
+    pin: 16
+    id: status_led
+
+#deep_sleep:
+#  run_duration: 
+#    default: 5sec
+#    gpio_wakeup_reason: 5sec
+#  sleep_duration: 60sec 
+#  bk71xx_gpio_wakeup:
+#    - number: 17
+#      pin_mode: swap_level
+#    - number: 9
+#      pin_mode: low_keep_awake
+#  id: deep_sleep_1
+  
+light:
+  - platform: binary
+    id: wifi_status
+    output: status_led
+    restore_mode: ALWAYS_ON
+
+switch:
+  - platform: restart
+    name: "Restart"
+  - platform: safe_mode
+    name: "Restart (Safe Mode)"
+  
+  
+i2c:
+  sda: P21
+  scl: P20
+  scan: true
+  id: bus_a
+  
+sensor:
+  - platform: hdc1080
+    temperature:
+      name: "Temperature"
+    humidity:
+      name: "Humidity"
+    update_interval: 10s
+    id: temphumid_id

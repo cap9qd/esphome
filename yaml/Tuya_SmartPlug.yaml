@@ -1,0 +1,105 @@
+esphome:
+  name: tuya-smartplug
+  friendly_name: Tuya SmartPlug
+      
+bk72xx:
+  board: cbu
+  framework:
+    version: 0.0.0
+    source: https://github.com/cap9qd/libretiny.git#master
+
+# Enable logging
+logger:
+  baud_rate: 115200
+  level: DEBUG
+  hardware_uart: UART1
+
+web_server:
+  port: 80
+
+captive_portal:
+
+# Enable Home Assistant API
+api:
+  encryption:
+    key: "gPCd8pqt4e+FnUQN4SmVGM8DViiYIpeqETn0AFmj/84="
+
+ota:
+  password: "82f3fcc3db4d823f807f9115b79759f4"
+
+wifi:
+  networks:
+    - ssid: !secret wifi_ssid
+      password: !secret wifi_password
+
+  # Enable fallback hotspot in case wifi connection fails
+  ap:
+    ssid: "Tuya SmartPlug Hotspot"
+    password: "17jiH7OW8C4Q"
+    
+button:
+  - platform: restart
+    name: Restart
+
+debug:
+  update_interval: 30s
+
+text_sensor:
+  - platform: debug
+    reset_reason:
+      name: Reset Reason
+
+sensor:
+  - platform: uptime
+    name: Uptime
+  - platform: hlw8012
+    model: BL0937
+    cf_pin:
+      number: P7
+      inverted: true
+    cf1_pin:
+      number: P6
+      inverted: true
+    sel_pin:
+      number: P24
+      inverted: true
+    current:
+      name: Current
+    voltage:
+      name: Voltage
+    power:
+      name: Power
+    energy:
+      name: Energy
+    voltage_divider: 800
+    current_resistor: 0.001 ohm
+    update_interval: 10s
+    change_mode_every: 3
+
+binary_sensor:
+  - platform: gpio
+    id: binary_switch_1
+    pin:
+      number: P11
+      inverted: true
+      mode: INPUT_PULLUP
+    on_press:
+      then:
+        - switch.toggle: switch_1
+
+switch:
+  - platform: gpio
+    id: switch_1
+    name: Relay 1
+    pin: P26
+    on_turn_on:
+      - light.turn_on: light_status
+    on_turn_off:
+      - light.turn_off: light_status
+
+light:
+  - platform: status_led
+    id: light_status
+    pin:
+      number: P8
+      inverted: true
