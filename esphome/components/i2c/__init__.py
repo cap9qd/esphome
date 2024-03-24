@@ -72,8 +72,6 @@ CONFIG_SCHEMA = cv.All(
 
 @coroutine_with_priority(1.0)
 async def to_code(config):
-    for key, val in config.items():
-        print(key, " | ", val)
     if CONF_SOFTWIRE in config:
         if config[CONF_SOFTWIRE] == 1:
             cg.add_define("USE_SOFTWIRE")
