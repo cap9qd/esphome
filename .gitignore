@@ -75,9 +75,6 @@ cov.xml
 # pyenv
 .python-version
 
-# asdf
-.tool-versions
-
 # Environments
 .env
 .venv
@@ -141,6 +138,6 @@ sdkconfig.*
 .tests/
 
 /components
-/managed_components
-
-api-docs/
+yaml/secrets.yaml
+yaml/test_deep_sleep_delay.py
+yaml/delayUpload.bat
