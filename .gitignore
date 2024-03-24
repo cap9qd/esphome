@@ -139,3 +139,5 @@ sdkconfig.*
 
 /components
 yaml/secrets.yaml
+yaml/test_deep_sleep_delay.py
+yaml/delayUpload.bat
