@@ -5,7 +5,6 @@ from esphome import pins
 from esphome.const import (
     CONF_FREQUENCY,
     CONF_ID,
-    CONF_INPUT,
     CONF_OUTPUT,
     CONF_SCAN,
     CONF_SCL,
@@ -15,6 +14,7 @@ from esphome.const import (
     PLATFORM_ESP32,
     PLATFORM_ESP8266,
     PLATFORM_RP2040,
+    PLATFORM_BK72XX,
 )
 from esphome.core import coroutine_with_priority, CORE
 
@@ -29,6 +29,7 @@ I2CDevice = i2c_ns.class_("I2CDevice")
 CONF_SDA_PULLUP_ENABLED = "sda_pullup_enabled"
 CONF_SCL_PULLUP_ENABLED = "scl_pullup_enabled"
 MULTI_CONF = True
+CONF_SOFTWIRE = "softwire"
 
 
 def _bus_declare_type(value):
@@ -40,7 +41,9 @@ def _bus_declare_type(value):
 
 
 pin_with_input_and_output_support = pins.internal_gpio_pin_number(
-    {CONF_OUTPUT: True, CONF_INPUT: True}
+    {
+        CONF_OUTPUT: True,
+    }
 )
 
 
@@ -60,14 +63,31 @@ CONFIG_SCHEMA = cv.All(
                 cv.frequency, cv.Range(min=0, min_included=False)
             ),
             cv.Optional(CONF_SCAN, default=True): cv.boolean,
+            cv.Optional(CONF_SOFTWIRE, default=False): cv.boolean,
         }
     ).extend(cv.COMPONENT_SCHEMA),
-    cv.only_on([PLATFORM_ESP32, PLATFORM_ESP8266, PLATFORM_RP2040]),
+    cv.only_on([PLATFORM_ESP32, PLATFORM_ESP8266, PLATFORM_RP2040, PLATFORM_BK72XX]),
 )
 
 
 @coroutine_with_priority(1.0)
 async def to_code(config):
+    for key, val in config.items():
+        print(key, " | ", val)
+    if CONF_SOFTWIRE in config:
+        if config[CONF_SOFTWIRE] == 1:
+            cg.add_define("USE_SOFTWIRE")
+            cg.add_library(
+                name="AsyncDelay",
+                repository="https://github.com/stevemarple/AsyncDelay",
+                version="v1.1.2",
+            )
+            cg.add_library(
+                name="SoftWire",
+                repository="https://github.com/stevemarple/softwire",
+                version="v2.0.9",
+            )
+
     cg.add_global(i2c_ns.using)
     var = cg.new_Pvariable(config[CONF_ID])
     await cg.register_component(var, config)

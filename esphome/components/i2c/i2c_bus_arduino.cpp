@@ -1,11 +1,6 @@
 #ifdef USE_ARDUINO
 
 #include "i2c_bus_arduino.h"
-#include "esphome/core/log.h"
-#include "esphome/core/helpers.h"
-#include "esphome/core/application.h"
-#include <Arduino.h>
-#include <cstring>
 
 namespace esphome {
 namespace i2c {
@@ -14,6 +9,14 @@ static const char *const TAG = "i2c.arduino";
 
 void ArduinoI2CBus::setup() {
   recover_();
+
+#if defined(USE_SOFTWIRE)
+  wire_ = new SoftWire(this->sda_pin_, this->scl_pin_);
+  wire_->setTxBuffer(swTxBuffer, sizeof(swTxBuffer));
+  wire_->setRxBuffer(swRxBuffer, sizeof(swRxBuffer));
+  wire_->setDelay_us(5);
+  wire_->setTimeout_ms(40);
+#else
 
 #if defined(USE_ESP32)
   static uint8_t next_bus_num = 0;
@@ -33,15 +36,25 @@ void ArduinoI2CBus::setup() {
   } else {
     wire_ = &Wire1;  // NOLINT(cppcoreguidelines-owning-memory)
   }
+#elif defined(USE_BK72XX)
+  wire_ = &Wire;  // NOLINT(cppcoreguidelines-prefer-member-initializer)
 #endif
 
+#endif
+
+#ifdef USE_SOFTWIRE
+  wire_->begin();
+#else
 #ifdef USE_RP2040
   wire_->setSDA(this->sda_pin_);
   wire_->setSCL(this->scl_pin_);
   wire_->begin();
+#elif defined(USE_BK72XX)
+  wire_->begin();
 #else
   wire_->begin(static_cast<int>(sda_pin_), static_cast<int>(scl_pin_));
 #endif
+#endif  // USE_SOFTWIRE
   wire_->setClock(frequency_);
   initialized_ = true;
   if (this->scan_) {
@@ -54,6 +67,10 @@ void ArduinoI2CBus::dump_config() {
   ESP_LOGCONFIG(TAG, "  SDA Pin: GPIO%u", this->sda_pin_);
   ESP_LOGCONFIG(TAG, "  SCL Pin: GPIO%u", this->scl_pin_);
   ESP_LOGCONFIG(TAG, "  Frequency: %u Hz", this->frequency_);
+#if defined(USE_SOFTWIRE)
+  ESP_LOGCONFIG(TAG, "  SoftWire: 1");
+#endif
+
   switch (this->recovery_result_) {
     case RECOVERY_COMPLETED:
       ESP_LOGCONFIG(TAG, "  Recovery: bus successfully recovered");

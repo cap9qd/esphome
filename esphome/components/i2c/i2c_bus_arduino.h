@@ -4,7 +4,25 @@
 
 #include "i2c_bus.h"
 #include "esphome/core/component.h"
+
+// Moved from i2c_bus_arduino.cpp
+#include "esphome/core/log.h"
+#include "esphome/core/helpers.h"
+#include "esphome/core/application.h"
+#include <Arduino.h>
+#include <cstring>
+// end-moved
+
+#ifdef USE_SOFTWIRE
+
+#include "AsyncDelay.h"
+#include "SoftWire.h"
+
+#else
+
 #include <Wire.h>
+
+#endif
 
 namespace esphome {
 namespace i2c {
@@ -32,8 +50,16 @@ class ArduinoI2CBus : public I2CBus, public Component {
   void recover_();
   RecoveryCode recovery_result_;
 
+#ifdef USE_SOFTWIRE
+ protected:
+  char swTxBuffer[128];
+  char swRxBuffer[128];
+  SoftWire *wire_;
+#else
  protected:
   TwoWire *wire_;
+#endif
+
   uint8_t sda_pin_;
   uint8_t scl_pin_;
   uint32_t frequency_;
