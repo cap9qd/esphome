@@ -41,7 +41,7 @@ struct Ext1Wakeup {
 };
 #endif
 
-#if defined(USE_ESP32) || defined(USE_LIBRETINY)
+#if defined(USE_ESP32) || defined(USE_BK72XX)
 struct WakeupCauseToRunDuration {
   // Run duration if woken up by timer or any other reason besides those below.
   uint32_t default_cause;
@@ -52,7 +52,7 @@ struct WakeupCauseToRunDuration {
 };
 #endif
 
-#ifdef USE_LIBRETINY
+#ifdef USE_BK72XX
 enum LtWakeupPinMode {
   WAKEUP_PIN_MODE_LOW_IGNORE = 0,       ///< Set to low level wakeup, ignore pin if low at sleep
   WAKEUP_PIN_MODE_LOW_KEEP_AWAKE,       ///< Set to low level wakeup, wait for pin to go low at sleep
@@ -93,14 +93,14 @@ class DeepSleepComponent : public Component {
 
 #endif
 
-#if defined(USE_ESP32) || defined(USE_LIBRETINY)
+#if defined(USE_ESP32) || defined(USE_BK72XX)
 
   // Set the duration in ms for how long the code should run before entering
   // deep sleep mode, according to the cause the ESP32 has woken.
   void set_run_duration(WakeupCauseToRunDuration wakeup_cause_to_run_duration);
 #endif
 
-#if defined(USE_LIBRETINY)
+#if defined(USE_BK72XX)
   void set_lt_gpio_wake(uint8_t pin, LtWakeupPinMode pin_mode);
   void set_lt_gpio_wake(InternalGPIOPin *pin, LtWakeupPinMode pin_mode);
 #endif
@@ -133,13 +133,13 @@ class DeepSleepComponent : public Component {
   optional<bool> touch_wakeup_;
 #endif
 
-#if defined(USE_ESP32) || defined(USE_LIBRETINY)
+#if defined(USE_ESP32) || defined(USE_BK72XX)
   optional<WakeupCauseToRunDuration> wakeup_cause_to_run_duration_;
 #endif
 
-#ifdef USE_LIBRETINY
+#ifdef USE_BK72XX
   std::map<uint8_t, LtWakeupPinMode> lt_gpio_wake_config_;
-  std::map <uint8_t, LtWakeupPinMode> :: iterator i;
+  //std::map <uint8_t, LtWakeupPinMode> :: iterator i;
   LtWakeupPinMode lt_wakeup_pin_mode_;
 #endif
 

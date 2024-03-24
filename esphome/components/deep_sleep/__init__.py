@@ -109,7 +109,27 @@ WAKEUP_PINS = {
     VARIANT_ESP32C2: [0, 1, 2, 3, 4, 5],
     VARIANT_ESP32C6: [0, 1, 2, 3, 4, 5, 6, 7],
     VARIANT_ESP32H2: [7, 8, 9, 10, 11, 12, 13, 14],
-    FAMILY_BK7231N: [0, 6, 7, 8, 9, 10, 11, 14, 20, 21, 22, 23, 24, 26],
+    FAMILY_BK7231N: [
+        0,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        26,
+    ],
 }
 
 
@@ -260,7 +280,6 @@ CONFIG_SCHEMA = cv.All(
         }
     ).extend(cv.COMPONENT_SCHEMA),
     cv.only_on([PLATFORM_ESP32, PLATFORM_ESP8266, PLATFORM_BK72XX]),
-    cv.check_bk72xx_family([FAMILY_BK7231N]),
 )
 
 
