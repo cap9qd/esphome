@@ -30,7 +30,7 @@ namespace gosund {
       bool found = false;
 
     if(debugPrint)
-        ESP_LOGD(TAG, "UART has $d bytes avaliable.", bytes_available);
+        ESP_LOGD(TAG, "UART has %d bytes avaliable.", bytes_available);
 
       if(bytes_available)
       {
@@ -42,7 +42,8 @@ namespace gosund {
             read_byte(&tBuffer[4]);
             if((tBuffer[0] == 0x24) && (0x01 == tBuffer[2]) && (0x23 == tBuffer[4]))
             {
-
+                if(debugPrint)
+                    ESP_LOGD(TAG, "Found matching string!");
                 found = true;
                 break;
             }
