@@ -30,10 +30,8 @@ namespace gosund {
       if(available())
       {
           for(int i = 0;i<4;i++)
-          {
-              tBuffer[i] = tBuffer[i+1];
-              read_byte(&tBuffer[4]);
-          }
+            tBuffer[i] = tBuffer[i+1];
+          read_byte(&tBuffer[4]);
           
           //MCU v1 = 0x24 0xYY 0x01 0x1E 0x23 where 0xYY is the dimmer value
           //MCU v2 = 0x24 0xYY 0x01 0x64 0x23 where 0xYY is the dimmer value
