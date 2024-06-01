@@ -35,7 +35,7 @@ namespace gosund {
       if(bytes_available)
       {
         //Read at most 5 bytes 
-        bytes_available = std::min(4, (bytes_available-1));
+        bytes_available = std::min(4U, (bytes_available-1));
         for(int i = 0;i<bytes_available;i++)
         {
             tBuffer[i] = tBuffer[i+1];
