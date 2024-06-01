@@ -39,6 +39,12 @@ namespace gosund {
             for(int j = 0; j<4; j++)
                 tBuffer[i] = tBuffer[i+1];
             read_byte(&tBuffer[4]);
+            
+            if(debugPrint) {
+                ESP_LOGD(TAG, "READ BYTES! 0x%02X %02X %02X %02X %02X", \
+                         tBuffer[0], tBuffer[1], tBuffer[2], tBuffer[3], tBuffer[4]);
+            }
+
             if((tBuffer[0] == 0x24) && (0x01 == tBuffer[2]) && (0x23 == tBuffer[4]))
             {
                 if(debugPrint)
