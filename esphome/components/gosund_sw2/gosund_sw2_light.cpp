@@ -37,7 +37,7 @@ namespace gosund {
         for(int i = 0;i<bytes_available;i++)
         {
             for(int j = 0; j<4; j++)
-                tBuffer[i] = tBuffer[i+1];
+                tBuffer[j] = tBuffer[j+1];
             read_byte(&tBuffer[4]);
             
             if(debugPrint) {
