@@ -11,10 +11,10 @@ void GosundLight::setup() {
     if (mcuVer == -1)
     {
         #if defined(USE_BK72XX)
-        this->set_mcu_ver(2);
+        this->set_mcu_version(2);
         #endif
         #if defined(USE_ESP8266)
-        this->set_mcu_ver(1);
+        this->set_mcu_version(1);
         #endif
     }
 }
