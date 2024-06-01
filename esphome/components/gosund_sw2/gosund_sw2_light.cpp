@@ -34,11 +34,10 @@ namespace gosund {
         if(debugPrint)
             ESP_LOGD(TAG, "UART has %d bytes avaliable.", bytes_available);
 
-        //Read at most 5 bytes 
-        bytes_available = std::min(4U, (bytes_available-1));
         for(int i = 0;i<bytes_available;i++)
         {
-            tBuffer[i] = tBuffer[i+1];
+            for(int j = 0; j<4; j++)
+                tBuffer[i] = tBuffer[i+1];
             read_byte(&tBuffer[4]);
             if((tBuffer[0] == 0x24) && (0x01 == tBuffer[2]) && (0x23 == tBuffer[4]))
             {
