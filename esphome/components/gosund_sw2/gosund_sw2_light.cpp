@@ -26,34 +26,22 @@ namespace gosund {
       static uint8_t mPos = 5;
       static uint8_t tBuffer[5];
       static float   dimmerVal = 0.0;
-      unsigned int bytes_available = available();
-      bool found = false;
-
-      if(bytes_available > 0)
+      
+      if(available())
       {
-        if(debugPrint)
-            ESP_LOGD(TAG, "UART has %d bytes avaliable.", bytes_available);
-
-        //Read at most 5 bytes 
-        bytes_available = std::min(4U, (bytes_available-1));
-        for(int i = 0;i<bytes_available;i++)
-        {
-            tBuffer[i] = tBuffer[i+1];
-            read_byte(&tBuffer[4]);
-            if((tBuffer[0] == 0x24) && (0x01 == tBuffer[2]) && (0x23 == tBuffer[4]))
-            {
-                if(debugPrint)
-                    ESP_LOGD(TAG, "Found matching string!");
-                found = true;
-                break;
-            }
-        }
+          for(int i = 0;i<4;i++)
+          {
+              tBuffer[i] = tBuffer[i+1];
+              read_byte(&tBuffer[4]);
+          }
           
           //MCU v1 = 0x24 0xYY 0x01 0x1E 0x23 where 0xYY is the dimmer value
           //MCU v2 = 0x24 0xYY 0x01 0x64 0x23 where 0xYY is the dimmer value
           // (NOTE: v1 MCU swapped byte 3 around between reboots; idk why...)
-          if(found) {
-              if(debugPrint) {
+          if((tBuffer[0] == 0x24) && (0x01 == tBuffer[2]) && (0x23 == tBuffer[4]))
+          {
+              if(debugPrint)
+              {
                   ESP_LOGD(TAG, "READ BYTES! 0x%02X %02X %02X %02X %02X", \
                            tBuffer[0], tBuffer[1], tBuffer[2], tBuffer[3], tBuffer[4]);
               }
