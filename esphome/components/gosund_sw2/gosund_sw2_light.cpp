@@ -7,17 +7,7 @@
 
 namespace esphome {
 namespace gosund {
-void GosundLight::setup() {
-    if (mcuVer == -1)
-    {
-        #if defined(USE_BK72XX)
-        this->set_mcu_version(2);
-        #endif
-        #if defined(USE_ESP8266)
-        this->set_mcu_version(1);
-        #endif
-    }
-}
+void GosundLight::setup() {}
 
 void GosundLight::dump_config() {
   ESP_LOGCONFIG(TAG, "Setup GoSund Dimmer SW2");
@@ -88,6 +78,13 @@ void GosundLight::set_debug(bool debug) { debugPrint = debug; }
 void GosundLight::set_mcu_version(int mcu_ver) {
   mcuVer = mcu_ver;
   switch (mcuVer) {
+    case 0x00:
+#if defined(USE_BK72XX)
+      this->set_mcu_version(2);
+#endif
+#if defined(USE_ESP8266)
+      this->set_mcu_version(1);
+#endif
     case 0x01:
       MAX_VALUE = 100.0;
       break;

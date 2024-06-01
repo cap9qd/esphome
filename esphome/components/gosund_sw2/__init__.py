@@ -24,7 +24,7 @@ CONFIG_SCHEMA = cv.All(
     light.BRIGHTNESS_ONLY_LIGHT_SCHEMA.extend(
         {
             cv.GenerateID(CONF_OUTPUT_ID): cv.declare_id(GoSundSw2Component),
-            cv.Optional(CONF_MCU_VER, default=-1): cv.int_,
+            cv.Optional(CONF_MCU_VER, default=0): cv.int_,
             cv.Required(CONF_STATUS_OUTPUT): cv.use_id(output.BinaryOutput),
             cv.Optional(CONF_GAMMA_CORRECT, default=1.0): cv.positive_float,
             cv.Optional(
