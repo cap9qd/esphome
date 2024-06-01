@@ -29,11 +29,11 @@ namespace gosund {
       unsigned int bytes_available = available();
       bool found = false;
 
-    if(debugPrint)
-        ESP_LOGD(TAG, "UART has %d bytes avaliable.", bytes_available);
-
-      if(bytes_available)
+      if(bytes_available > 0)
       {
+        if(debugPrint)
+            ESP_LOGD(TAG, "UART has %d bytes avaliable.", bytes_available);
+
         //Read at most 5 bytes 
         bytes_available = std::min(4U, (bytes_available-1));
         for(int i = 0;i<bytes_available;i++)
@@ -47,7 +47,7 @@ namespace gosund {
                 found = true;
                 break;
             }
-}
+        }
           
           //MCU v1 = 0x24 0xYY 0x01 0x1E 0x23 where 0xYY is the dimmer value
           //MCU v2 = 0x24 0xYY 0x01 0x64 0x23 where 0xYY is the dimmer value
