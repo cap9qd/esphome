@@ -7,7 +7,17 @@
 
 namespace esphome {
 namespace gosund {
-void GosundLight::setup() {}
+void GosundLight::setup() {
+    if (mcuVer == -1)
+    {
+        #if defined(USE_BK72XX)
+        this->set_mcu_ver(2);
+        #endif
+        #if defined(USE_ESP8266)
+        this->set_mcu_ver(1);
+        #endif
+    }
+}
 
 void GosundLight::dump_config() {
   ESP_LOGCONFIG(TAG, "Setup GoSund Dimmer SW2");
