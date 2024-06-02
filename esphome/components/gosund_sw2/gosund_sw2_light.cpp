@@ -76,15 +76,16 @@ void GosundLight::loop() {
 void GosundLight::set_debug(bool debug) { debugPrint = debug; }
 
 void GosundLight::set_mcu_version(int mcu_ver) {
-  mcuVer = mcu_ver;
-  switch (mcuVer) {
-    case 0x00:
+  if (mcu_ver <= 0) {
 #if defined(USE_BK72XX)
-      this->set_mcu_version(2);
+    mcu_ver = 2;
 #endif
 #if defined(USE_ESP8266)
-      this->set_mcu_version(1);
+    mcu_ver = 1;
 #endif
+  }
+  mcuVer = mcu_ver;
+  switch (mcuVer) {
     case 0x01:
       MAX_VALUE = 100.0;
       break;
