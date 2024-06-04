@@ -16,6 +16,10 @@
 
 #include <cinttypes>
 
+#ifdef USE_BK72XX
+#include <map>
+#endif
+
 namespace esphome {
 namespace deep_sleep {
 
@@ -86,7 +90,8 @@ class DeepSleepComponent : public Component {
 #endif
 
 #if defined(USE_ESP32) || defined(USE_BK72XX)
-#if !defined(USE_ESP32_VARIANT_ESP32C3)
+
+#if !defined(USE_ESP32_VARIANT_ESP32C3) && !defined(USE_BK72XX)
 
   void set_ext1_wakeup(Ext1Wakeup ext1_wakeup);
 
@@ -95,8 +100,13 @@ class DeepSleepComponent : public Component {
 #endif
 
   // Set the duration in ms for how long the code should run before entering
-  // deep sleep mode, according to the cause the ESP32 has woken.
+  // deep sleep mode, according to the cause the ESP32/BK72xx has woken.
   void set_run_duration(WakeupCauseToRunDuration wakeup_cause_to_run_duration);
+#endif
+
+#if defined(USE_BK72XX)
+  void set_lt_gpio_wake(uint8_t pin, LtWakeupPinMode pin_mode);
+  void set_lt_gpio_wake(InternalGPIOPin *pin, LtWakeupPinMode pin_mode);
 #endif
 
   /// Set a duration in ms for how long the code should run before entering deep sleep mode.
@@ -136,7 +146,6 @@ class DeepSleepComponent : public Component {
 
 #ifdef USE_BK72XX
   std::map<uint8_t, LtWakeupPinMode> lt_gpio_wake_config_;
-  // std::map <uint8_t, LtWakeupPinMode> :: iterator i;
   LtWakeupPinMode lt_wakeup_pin_mode_;
 #endif
 
