@@ -47,7 +47,7 @@ void CHT8310Component::setup() {
     }
   }
   else
-  }
+  {
     // Disable SD and leave the rest default
     const uint8_t data[2] = {0x08, 0x80};
     if (!this->write_bytes(CHT8310_REG_CONFIG, data, 2)) {
