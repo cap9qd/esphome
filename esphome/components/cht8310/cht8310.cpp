@@ -119,7 +119,7 @@ void CHT8310Component::update() {
       // as instruction is same as powerup defaults (for now), interpret as warning if this fails
       ESP_LOGW(TAG, "CHT8310 conversion time config error");
       this->status_set_warning();
-      //return;
+      return;
     }
 
     if (this->write(&CHT8310_REG_CONVERT_RATE, 1) != i2c::ERROR_OK) {
