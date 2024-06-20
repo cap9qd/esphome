@@ -118,27 +118,19 @@ void CHT8310Component::update() {
     }
     ESP_LOGD(TAG, "STATUS = 0x%04X", raw_temp);
 
-    uint16_t conv_time = (*conv_t_ & 0x0007) << 8;
-    ESP_LOGD(TAG, "Write CONV_T = 0x%04X", conv_time);
-    if (!this->write_register(CHT8310_REG_CONVERT_RATE, reinterpret_cast<uint8_t *>(&conv_time), 2, 1) != i2c::ERROR_OK) {
-      ESP_LOGW(TAG, "CHT8310 conversion time config instruction error");
-      this->status_set_warning();
-      return;
-    }
-
-/*
     if (this->write(&CHT8310_REG_CONVERT_RATE, 1) != i2c::ERROR_OK) {
       ESP_LOGE(TAG, "Error writing status reg!");
       this->status_set_warning();
       return;
     }
     delay(1);
+    raw_temp = (*conv_t_ & 0x0007) << 8;
     if (this->read(reinterpret_cast<uint8_t *>(&raw_temp), 2) != i2c::ERROR_OK) {
       ESP_LOGE(TAG, "Error reading status reg!");
       this->status_set_warning();
       return;
     }
-    */
+
     ESP_LOGD(TAG, "CONV_T = 0x%04X", raw_temp);
   }
 
