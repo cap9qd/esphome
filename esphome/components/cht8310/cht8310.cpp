@@ -112,9 +112,9 @@ void CHT8310Component::update() {
       this->status_set_warning();
       return;
     }
-    ESP_LOGD(TAG, "STATUS = 0x%04X", raw_temp);
+    ESP_LOGD(TAG, "STATUS = 0x%04X", i2c::i2ctohs(raw_temp));
 
-    uint16_t conv_time = (*conv_t_ & 0x0007);
+    uint16_t conv_time = i2c::htoi2cs((*conv_t_ & 0x0007)<<8);
     if (this->write_register(CHT8310_REG_CONVERT_RATE, reinterpret_cast<uint8_t *>(&conv_time), 2, 1) != i2c::ERROR_OK) {
       // as instruction is same as powerup defaults (for now), interpret as warning if this fails
       ESP_LOGW(TAG, "CHT8310 conversion time config error");
@@ -137,7 +137,7 @@ void CHT8310Component::update() {
       return;
     }
 
-    ESP_LOGD(TAG, "CONV_T = 0x%04X", raw_temp);
+    ESP_LOGD(TAG, "CONV_T = 0x%04X", i2c::i2ctohs(raw_temp));
   }
 
   if (this->write(&CHT8310_REG_TEMPERATURE, 1) != i2c::ERROR_OK) {
