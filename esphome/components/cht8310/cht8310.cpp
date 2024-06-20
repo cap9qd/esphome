@@ -35,18 +35,28 @@ void CHT8310Component::setup() {
     return;
   }
 
-  // Enable SD and leave the rest default
-  const uint8_t data[2] = {0x48, 0x80};
-
-  if (!this->write_bytes(CHT8310_REG_CONFIG, data, 2)) {
-    // as instruction is same as powerup defaults (for now), interpret as warning if this fails
-    ESP_LOGW(TAG, "CHT8310 initial config instruction error");
-    this->status_set_warning();
-    return;
-  }
-
-  if(!sd_mode_)
+  if(sd_mode_)
   {
+    // Enable SD and leave the rest default
+    const uint8_t data[2] = {0x48, 0x80};
+    if (!this->write_bytes(CHT8310_REG_CONFIG, data, 2)) {
+      // as instruction is same as powerup defaults (for now), interpret as warning if this fails
+      ESP_LOGW(TAG, "CHT8310 initial config instruction error");
+      this->status_set_warning();
+      return;
+    }
+  }
+  else
+  }
+    // Disable SD and leave the rest default
+    const uint8_t data[2] = {0x08, 0x80};
+    if (!this->write_bytes(CHT8310_REG_CONFIG, data, 2)) {
+      // as instruction is same as powerup defaults (for now), interpret as warning if this fails
+      ESP_LOGW(TAG, "CHT8310 initial config instruction error");
+      this->status_set_warning();
+      return;
+    }
+
     uint16_t conv_time = (*conv_t_ << 8) & 0x0700;
     if (!this->write_register(CHT8310_REG_CONVERT_RATE, reinterpret_cast<uint8_t *>(&conv_time), 2, 1) != i2c::ERROR_OK) {
       ESP_LOGW(TAG, "CHT8310 conversion time config instruction error");
@@ -111,8 +121,7 @@ void CHT8310Component::update() {
       ESP_LOGE(TAG, "Error writing min temperature to CHT3210!");
 
     raw_data = i2c::htoi2cs((uint16_t) ((temp + *max_temperature_) / 0.03125f) << 3);
-    if (this->write_register(CHT8310_REG_TEMP_HIGH_LIMIT, reinterpret_cast<uint8_t *>(&raw_data), 2, 1) !=
-        i2c::ERROR_OK)
+    if (this->write_register(CHT8310_REG_TEMP_HIGH_LIMIT, reinterpret_cast<uint8_t *>(&raw_data), 2, 1) != i2c::ERROR_OK)
       ESP_LOGE(TAG, "Error writing max temperature to CHT3210!");
   }
 
