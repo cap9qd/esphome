@@ -17,6 +17,14 @@ class CHT8310Component : public PollingComponent, public i2c::I2CDevice {
   void set_max_humidity(float max_humidity) { max_humidity_ = max_humidity; }
   void set_min_humidity(float min_humidity) { min_humidity_ = min_humidity; }
 
+  void set_sd_mode(bool sd_mode) { sd_mode_ = sd_mode; }
+  void set_conv_t(uint16_t rate) { 
+    if (rate > 7) 
+      conv_t_ = 7; 
+    else
+      conv_t_ = rate;
+  }
+
   /// Setup the sensor and check for connection.
   void setup() override;
   void dump_config() override;
@@ -33,6 +41,9 @@ class CHT8310Component : public PollingComponent, public i2c::I2CDevice {
   optional<float> max_temperature_;
   optional<float> min_humidity_;
   optional<float> max_humidity_;
+
+  bool sd_mode_;
+  optional<uint16_t> conv_t_;
 
   uint16_t chip_ver;
 };
