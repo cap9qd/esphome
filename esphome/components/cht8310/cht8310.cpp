@@ -47,7 +47,8 @@ void CHT8310Component::setup() {
 
   if(!sd_mode_)
   {
-    if (!this->write_register(CHT8310_REG_CONVERT_RATE, reinterpret_cast<uint8_t *>((&(*conv_t_) << 8) & 0x0700), 2, 1) != i2c::ERROR_OK) {
+    uint16_t conv_time = (*conv_t_ << 8) & 0x0700;
+    if (!this->write_register(CHT8310_REG_CONVERT_RATE, reinterpret_cast<uint8_t *>(&conv_time), 2, 1) != i2c::ERROR_OK) {
       ESP_LOGW(TAG, "CHT8310 conversion time config instruction error");
       this->status_set_warning();
       return;
