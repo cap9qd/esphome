@@ -102,7 +102,7 @@ void CHT8310Component::update() {
   else
   {
     if (this->write(&CHT8310_REG_STATUS, 1) != i2c::ERROR_OK) {
-      ESP_LOGE(TAG, "Error writing temperature reg!");
+      ESP_LOGE(TAG, "Error writing status reg!");
       this->status_set_warning();
       return;
     }
@@ -112,7 +112,7 @@ void CHT8310Component::update() {
       this->status_set_warning();
       return;
     }
-    ESP_LOGI(TAG, "STATUS + %X", raw_temp);
+    ESP_LOGD(TAG, "STATUS = %04X", raw_temp);
   }
   
   if (this->write(&CHT8310_REG_TEMPERATURE, 1) != i2c::ERROR_OK) {
