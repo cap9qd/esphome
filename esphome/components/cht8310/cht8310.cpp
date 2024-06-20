@@ -114,7 +114,7 @@ void CHT8310Component::update() {
     }
     ESP_LOGD(TAG, "STATUS = 0x%04X", raw_temp);
 
-    uint16_t conv_time = (*conv_t_ & 0x0007) << 8;
+    uint16_t conv_time = (*conv_t_ & 0x0007);
     if (this->write_register(CHT8310_REG_CONVERT_RATE, reinterpret_cast<uint8_t *>(&conv_time), 2, 1) != i2c::ERROR_OK) {
       // as instruction is same as powerup defaults (for now), interpret as warning if this fails
       ESP_LOGW(TAG, "CHT8310 conversion time config error");
@@ -124,7 +124,7 @@ void CHT8310Component::update() {
     else
       ESP_LOGW(TAG, "CHT8310 Conversion set to 0x%04X", conv_time);
     delay(1);
-    
+
     if (this->write(&CHT8310_REG_CONVERT_RATE, 1) != i2c::ERROR_OK) {
       ESP_LOGE(TAG, "Error writing status reg!");
       this->status_set_warning();
