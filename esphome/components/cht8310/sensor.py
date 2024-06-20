@@ -82,17 +82,17 @@ async def to_code(config):
     if CONF_TEMPERATURE in config:
         sens = await sensor.new_sensor(config[CONF_TEMPERATURE])
         cg.add(var.set_temperature(sens))
-        # temp_conf = config[CONF_TEMPERATURE]
-        # if CONF_MIN_TEMP in temp_conf:
-        #    cg.add(var.set_min_temperature(temp_conf[CONF_MIN_TEMP]))
-        # if CONF_MAX_TEMP in temp_conf:
-        #    cg.add(var.set_max_temperature(temp_conf[CONF_MAX_TEMP]))
+        temp_conf = config[CONF_TEMPERATURE]
+        if CONF_MIN_TEMP in temp_conf:
+            cg.add(var.set_min_temperature(temp_conf[CONF_MIN_TEMP]))
+        if CONF_MAX_TEMP in temp_conf:
+            cg.add(var.set_max_temperature(temp_conf[CONF_MAX_TEMP]))
 
     if CONF_HUMIDITY in config:
         sens = await sensor.new_sensor(config[CONF_HUMIDITY])
         cg.add(var.set_humidity(sens))
-        # humid_conf = config[CONF_HUMIDITY]
-        # if CONF_MIN_HUMID in humid_conf:
-        #    cg.add(var.set_min_humidity(humid_conf[CONF_MIN_HUMID]))
-        # if CONF_MAX_HUMID in humid_conf:
-        #    cg.add(var.set_max_humidity(humid_conf[CONF_MAX_HUMID]))
+        humid_conf = config[CONF_HUMIDITY]
+        if CONF_MIN_HUMID in humid_conf:
+            cg.add(var.set_min_humidity(humid_conf[CONF_MIN_HUMID]))
+        if CONF_MAX_HUMID in humid_conf:
+            cg.add(var.set_max_humidity(humid_conf[CONF_MAX_HUMID]))
