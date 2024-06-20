@@ -74,7 +74,7 @@ void CHT8310Component::dump_config() {
   if (max_humidity_.has_value())
     ESP_LOGCONFIG(TAG, "    max: %.1f %%", *max_humidity_);
   ESP_LOGCONFIG(TAG, "SD:    %d", sd_mode_);
-  ESP_LOGCONFIG(TAG, "ConvT: %d", *conv_t);
+  ESP_LOGCONFIG(TAG, "ConvT: %d", *conv_t_);
 }
 void CHT8310Component::update() {
   if (sd_mode_) {
