@@ -53,7 +53,7 @@ void CHT8310Component::setup() {
       this->status_set_warning();
       return;
     }
-
+    delay(1);
     uint16_t conv_time = (*conv_t_ & 0x0007) << 8;
     if (this->write_register(CHT8310_REG_CONVERT_RATE, reinterpret_cast<uint8_t *>(&conv_time), 2, 1) != i2c::ERROR_OK) {
       // as instruction is same as powerup defaults (for now), interpret as warning if this fails
