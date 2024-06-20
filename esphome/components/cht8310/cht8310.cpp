@@ -121,7 +121,10 @@ void CHT8310Component::update() {
       this->status_set_warning();
       return;
     }
-
+    else
+      ESP_LOGW(TAG, "CHT8310 Conversion set to 0x%04X", conv_time);
+    delay(1);
+    
     if (this->write(&CHT8310_REG_CONVERT_RATE, 1) != i2c::ERROR_OK) {
       ESP_LOGE(TAG, "Error writing status reg!");
       this->status_set_warning();
