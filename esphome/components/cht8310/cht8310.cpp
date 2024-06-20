@@ -113,6 +113,19 @@ void CHT8310Component::update() {
       return;
     }
     ESP_LOGD(TAG, "STATUS = %04X", raw_temp);
+
+    if (this->write(&CHT8310_REG_CONVERT_RATE, 1) != i2c::ERROR_OK) {
+      ESP_LOGE(TAG, "Error writing status reg!");
+      this->status_set_warning();
+      return;
+    }
+    delay(10);
+    if (this->read(reinterpret_cast<uint8_t *>(&raw_temp), 2) != i2c::ERROR_OK) {
+      ESP_LOGE(TAG, "Error reading status reg!");
+      this->status_set_warning();
+      return;
+    }
+    ESP_LOGD(TAG, "CONV_T = %04X", raw_temp);
   }
   
   if (this->write(&CHT8310_REG_TEMPERATURE, 1) != i2c::ERROR_OK) {
