@@ -99,4 +99,4 @@ async def to_code(config):
     if CONF_SD_MODE in config:
         cg.add(var.set_sd_mode(config[CONF_SD_MODE]))
     if CONF_CONV_T in config:
-        cg.add(var.set_conf_t(config[CONF_CONV_T]))
+        cg.add(var.set_conv_t(config[CONF_CONV_T]))
