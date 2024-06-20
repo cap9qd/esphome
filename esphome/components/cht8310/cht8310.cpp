@@ -45,29 +45,31 @@ void CHT8310Component::setup() {
     return;
   }
 
-  uint16_t raw_data;
-  if (min_temperature_.has_value()) {
-    raw_data = i2c::htoi2cs((uint16_t) (*min_temperature_ / 0.03125f) << 3);
-    if (this->write_register(CHT8310_REG_TEMP_LOW_LIMIT, reinterpret_cast<uint8_t *>(&raw_data), 2, 1) != i2c::ERROR_OK)
-      ESP_LOGE(TAG, "Error writing min temperature to CHT3210!");
-  }
-  if (max_temperature_.has_value()) {
-    raw_data = i2c::htoi2cs((uint16_t) (*max_temperature_ / 0.03125f) << 3);
-    if (this->write_register(CHT8310_REG_TEMP_HIGH_LIMIT, reinterpret_cast<uint8_t *>(&raw_data), 2, 1) !=
-        i2c::ERROR_OK)
-      ESP_LOGE(TAG, "Error writing max temperature to CHT3210!");
-  }
+  /*
+    uint16_t raw_data;
+    if (min_temperature_.has_value()) {
+      raw_data = i2c::htoi2cs((uint16_t) (*min_temperature_ / 0.03125f) << 3);
+      if (this->write_register(CHT8310_REG_TEMP_LOW_LIMIT, reinterpret_cast<uint8_t *>(&raw_data), 2, 1) !=
+    i2c::ERROR_OK) ESP_LOGE(TAG, "Error writing min temperature to CHT3210!");
+    }
+    if (max_temperature_.has_value()) {
+      raw_data = i2c::htoi2cs((uint16_t) (*max_temperature_ / 0.03125f) << 3);
+      if (this->write_register(CHT8310_REG_TEMP_HIGH_LIMIT, reinterpret_cast<uint8_t *>(&raw_data), 2, 1) !=
+          i2c::ERROR_OK)
+        ESP_LOGE(TAG, "Error writing max temperature to CHT3210!");
+    }
 
-  if (min_humidity_.has_value()) {
-    raw_data = i2c::htoi2cs((uint16_t) (*min_humidity_ * 327.67f) & 0x7F00);
-    if (this->write_register(CHT8310_REG_HUM_LOW_LIMIT, reinterpret_cast<uint8_t *>(&raw_data), 2, 1) != i2c::ERROR_OK)
-      ESP_LOGE(TAG, "Error writing min humidity to CHT3210!");
-  }
-  if (max_humidity_.has_value()) {
-    raw_data = i2c::htoi2cs((uint16_t) (*max_humidity_ * 327.67f) & 0x7F00);
-    if (this->write_register(CHT8310_REG_HUM_HIGH_LIMIT, reinterpret_cast<uint8_t *>(&raw_data), 2, 1) != i2c::ERROR_OK)
-      ESP_LOGE(TAG, "Error writing max humidity to CHT3210!");
-  }
+    if (min_humidity_.has_value()) {
+      raw_data = i2c::htoi2cs((uint16_t) (*min_humidity_ * 327.67f) & 0x7F00);
+      if (this->write_register(CHT8310_REG_HUM_LOW_LIMIT, reinterpret_cast<uint8_t *>(&raw_data), 2, 1) !=
+    i2c::ERROR_OK) ESP_LOGE(TAG, "Error writing min humidity to CHT3210!");
+    }
+    if (max_humidity_.has_value()) {
+      raw_data = i2c::htoi2cs((uint16_t) (*max_humidity_ * 327.67f) & 0x7F00);
+      if (this->write_register(CHT8310_REG_HUM_HIGH_LIMIT, reinterpret_cast<uint8_t *>(&raw_data), 2, 1) !=
+    i2c::ERROR_OK) ESP_LOGE(TAG, "Error writing max humidity to CHT3210!");
+    }
+  */
 }
 void CHT8310Component::dump_config() {
   ESP_LOGCONFIG(TAG, "CHT8310:");
@@ -115,6 +117,18 @@ void CHT8310Component::update() {
   float temp = (raw_temp >> 3) * 0.03125f;
   this->temperature_->publish_state(temp);
 
+  uint16_t raw_data;
+  if (min_temperature_.has_value() && max_temperature_.has_value()) {
+    raw_data = i2c::htoi2cs((uint16_t) ((temp + *min_temperature_) / 0.03125f) << 3);
+    if (this->write_register(CHT8310_REG_TEMP_LOW_LIMIT, reinterpret_cast<uint8_t *>(&raw_data), 2, 1) != i2c::ERROR_OK)
+      ESP_LOGE(TAG, "Error writing min temperature to CHT3210!");
+
+    raw_data = i2c::htoi2cs((uint16_t) ((temp + *max_temperature_) / 0.03125f) << 3);
+    if (this->write_register(CHT8310_REG_TEMP_HIGH_LIMIT, reinterpret_cast<uint8_t *>(&raw_data), 2, 1) !=
+        i2c::ERROR_OK)
+      ESP_LOGE(TAG, "Error writing max temperature to CHT3210!");
+  }
+
   uint16_t raw_humidity;
   if (this->write(&CHT8310_REG_HUMIDITY, 1) != i2c::ERROR_OK) {
     ESP_LOGE(TAG, "Error writing humidity reg!");
@@ -130,6 +144,16 @@ void CHT8310Component::update() {
   raw_humidity = i2c::i2ctohs(raw_humidity);
   float humidity = (raw_humidity & 0x7FFF) / 327.67f;
   this->humidity_->publish_state(humidity);
+
+  if (min_humidity_.has_value() && max_humidity_.has_value()) {
+    raw_data = i2c::htoi2cs((uint16_t) ((humidity + *min_humidity_) * 327.67f) & 0x7F00);
+    if (this->write_register(CHT8310_REG_HUM_LOW_LIMIT, reinterpret_cast<uint8_t *>(&raw_data), 2, 1) != i2c::ERROR_OK)
+      ESP_LOGE(TAG, "Error writing min humidity to CHT3210!");
+
+    raw_data = i2c::htoi2cs((uint16_t) ((humidity + *max_humidity_) * 327.67f) & 0x7F00);
+    if (this->write_register(CHT8310_REG_HUM_HIGH_LIMIT, reinterpret_cast<uint8_t *>(&raw_data), 2, 1) != i2c::ERROR_OK)
+      ESP_LOGE(TAG, "Error writing max humidity to CHT3210!");
+  }
 
   ESP_LOGD(TAG, "Got temperature=%.1f°C humidity=%.1f%%", temp, humidity);
   this->status_clear_warning();
