@@ -60,7 +60,7 @@ void CHT8310Component::setup() {
     { ESP_LOGW(TAG, "CHT8310 conversion time config instruction error"); this->status_set_warning(); return;
     }
     */
-    const uint8_t data2[2] = {0x04, 0x00};
+    const uint8_t data2[2] = {0x00, 0x04};
     if (!this->write_bytes(CHT8310_REG_CONVERT_RATE, data2, 2)) {
       // as instruction is same as powerup defaults (for now), interpret as warning if this fails
       ESP_LOGW(TAG, "CHT8310 conversion time config error");
