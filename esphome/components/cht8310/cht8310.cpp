@@ -58,7 +58,7 @@ void CHT8310Component::setup() {
     }
 
     uint16_t conv_time = (*conv_t_ & 0x0007) << 8;
-    ESP_LOGCONFIG(TAG, "Write CONV_T = 0x%04X", conv_time);
+    ESP_LOGD(TAG, "Write CONV_T = 0x%04X", conv_time);
     if (!this->write_register(CHT8310_REG_CONVERT_RATE, reinterpret_cast<uint8_t *>(&conv_time), 2, 1) != i2c::ERROR_OK) {
       ESP_LOGW(TAG, "CHT8310 conversion time config instruction error");
       this->status_set_warning();
@@ -87,6 +87,8 @@ void CHT8310Component::dump_config() {
     ESP_LOGCONFIG(TAG, "    max: %.1f %%", *max_humidity_);
   ESP_LOGCONFIG(TAG, "SD:    %d", sd_mode_);
   ESP_LOGCONFIG(TAG, "ConvT: %d", *conv_t_);
+  uint16_t conv_time = (*conv_t_ & 0x0007) << 8;
+  ESP_LOGCONFIG(TAG, "CONV_T: 0x%04X", conv_time);
 }
 void CHT8310Component::update() {
   uint16_t raw_temp;
