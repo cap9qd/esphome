@@ -88,6 +88,8 @@ void CHT8310Component::dump_config() {
   ESP_LOGCONFIG(TAG, "ConvT: %d", *conv_t_);
 }
 void CHT8310Component::update() {
+  uint16_t raw_temp;
+
   if (sd_mode_) {
     const uint8_t data[2] = {0x12, 0x34};
     if (this->write_register(CHT8310_REG_ONESHOT, &data[0], 2, 1) != i2c::ERROR_OK) {
@@ -97,7 +99,22 @@ void CHT8310Component::update() {
     }
     delay(10);
   }
-  uint16_t raw_temp;
+  else
+  {
+    if (this->write(&CHT8310_REG_STATUS, 1) != i2c::ERROR_OK) {
+      ESP_LOGE(TAG, "Error writing temperature reg!");
+      this->status_set_warning();
+      return;
+    }
+    delay(10);
+    if (this->read(reinterpret_cast<uint8_t *>(&raw_temp), 2) != i2c::ERROR_OK) {
+      ESP_LOGE(TAG, "Error reading status reg!");
+      this->status_set_warning();
+      return;
+    }
+    ESP_LOGI(TAG, "STATUS + %X", raw_temp);
+  }
+  
   if (this->write(&CHT8310_REG_TEMPERATURE, 1) != i2c::ERROR_OK) {
     ESP_LOGE(TAG, "Error writing temperature reg!");
     this->status_set_warning();
