@@ -35,11 +35,11 @@ void CHT8310Component::setup() {
     return;
   }
 
-  config_reg |= (alarm_pol_ << 5);
-  config_reg |= (sd_mode_ << 14);
-  config_reg = i2c::htoi2cs(config_reg);
+  config_reg_ |= (alarm_pol_ << 5);
+  config_reg_ |= (sd_mode_ << 14);
+  config_reg_ = i2c::htoi2cs(config_reg_);
 
-  if (this->write_register(CHT8310_REG_CONFIG, reinterpret_cast<uint8_t *>(&config_reg), 2, 1) != i2c::ERROR_OK) {
+  if (this->write_register(CHT8310_REG_CONFIG, reinterpret_cast<uint8_t *>(&config_reg_), 2, 1) != i2c::ERROR_OK) {
     ESP_LOGW(TAG, "CHT8310 config error");
     this->status_set_warning();
     return;
@@ -100,7 +100,7 @@ void CHT8310Component::update() {
     ESP_LOGD(TAG, "STATUS = 0x%04X", i2c::i2ctohs(raw_temp));
     delay(1);
 
-    if (this->write_register(CHT8310_REG_CONFIG, reinterpret_cast<uint8_t *>(&config_reg), 2, 1) != i2c::ERROR_OK) {
+    if (this->write_register(CHT8310_REG_CONFIG, reinterpret_cast<uint8_t *>(&config_reg_), 2, 1) != i2c::ERROR_OK) {
       ESP_LOGW(TAG, "CHT8310 config error");
       this->status_set_warning();
       return;
