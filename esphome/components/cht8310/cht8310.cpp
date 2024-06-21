@@ -77,7 +77,7 @@ void CHT8310Component::dump_config() {
 
   uint16_t config_reg = 0x0880;
   config_reg |= (alarm_pol_ << 5);
-  config_reg |= (sd_mode_ << 15);
+  config_reg |= (sd_mode_ << 14);
 
   ESP_LOGCONFIG(TAG, "CONFIG 0x%04X", config_reg);
 }
@@ -105,6 +105,20 @@ void CHT8310Component::update() {
       return;
     }
     ESP_LOGD(TAG, "STATUS = 0x%04X", i2c::i2ctohs(raw_temp));
+    delay(1);
+
+    if (this->write(&CHT8310_REG_CONFIG, 1) != i2c::ERROR_OK) {
+      ESP_LOGE(TAG, "Error writing status reg!");
+      this->status_set_warning();
+      return;
+    }
+    delay(1);
+    if (this->read(reinterpret_cast<uint8_t *>(&raw_temp), 2) != i2c::ERROR_OK) {
+      ESP_LOGE(TAG, "Error reading status reg!");
+      this->status_set_warning();
+      return;
+    }
+    ESP_LOGD(TAG, "CONFIG = 0x%04X", i2c::i2ctohs(raw_temp));
   }
 
   if (this->write(&CHT8310_REG_TEMPERATURE, 1) != i2c::ERROR_OK) {
