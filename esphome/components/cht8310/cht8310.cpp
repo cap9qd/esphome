@@ -35,10 +35,8 @@ void CHT8310Component::setup() {
     return;
   }
 
-  uint16_t config_reg = 0x0880;
   config_reg |= (alarm_pol_ << 5);
   config_reg |= (sd_mode_ << 14);
-
   config_reg = i2c::htoi2cs(config_reg);
 
   if (this->write_register(CHT8310_REG_CONFIG, reinterpret_cast<uint8_t *>(&config_reg), 2, 1) != i2c::ERROR_OK) {
@@ -75,12 +73,6 @@ void CHT8310Component::dump_config() {
     ESP_LOGCONFIG(TAG, "    max: %.1f %%", *max_humidity_);
   ESP_LOGCONFIG(TAG, "SD:    %d", sd_mode_);
   ESP_LOGCONFIG(TAG, "ConvT: %d", *conv_t_);
-
-  uint16_t config_reg = 0x0880;
-  config_reg |= (alarm_pol_ << 5);
-  config_reg |= (sd_mode_ << 14);
-  config_reg = i2c::htoi2cs(config_reg);
-  ESP_LOGCONFIG(TAG, "CONFIG 0x%04X", config_reg);
 }
 void CHT8310Component::update() {
   uint16_t raw_temp;
@@ -107,6 +99,12 @@ void CHT8310Component::update() {
     }
     ESP_LOGD(TAG, "STATUS = 0x%04X", i2c::i2ctohs(raw_temp));
     delay(1);
+
+    if (this->write_register(CHT8310_REG_CONFIG, reinterpret_cast<uint8_t *>(&config_reg), 2, 1) != i2c::ERROR_OK) {
+      ESP_LOGW(TAG, "CHT8310 config error");
+      this->status_set_warning();
+      return;
+    }
 
     if (this->write(&CHT8310_REG_CONFIG, 1) != i2c::ERROR_OK) {
       ESP_LOGE(TAG, "Error writing status reg!");
