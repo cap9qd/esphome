@@ -74,8 +74,12 @@ void CHT8310Component::dump_config() {
     ESP_LOGCONFIG(TAG, "    max: %.1f %%", *max_humidity_);
   ESP_LOGCONFIG(TAG, "SD:    %d", sd_mode_);
   ESP_LOGCONFIG(TAG, "ConvT: %d", *conv_t_);
-  uint16_t conv_time = (*conv_t_ & 0x0007) << 8;
-  ESP_LOGCONFIG(TAG, "CONV_T: 0x%04X", conv_time);
+
+  uint16_t config_reg = 0x0880;
+  config_reg |= (alarm_pol_ << 5);
+  config_reg |= (sd_mode_ << 15);
+
+  ESP_LOGCONFIG(TAG, "CONFIG 0x%04X", config_reg);
 }
 void CHT8310Component::update() {
   uint16_t raw_temp;
