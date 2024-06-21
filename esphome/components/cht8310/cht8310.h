@@ -24,7 +24,8 @@ class CHT8310Component : public PollingComponent, public i2c::I2CDevice {
     else
       conv_t_ = rate;
   }
-
+  void set_alarm_pol(bool pol) {alarm_pol_ = pol; }
+  
   /// Setup the sensor and check for connection.
   void setup() override;
   void dump_config() override;
@@ -43,6 +44,8 @@ class CHT8310Component : public PollingComponent, public i2c::I2CDevice {
   optional<float> max_humidity_;
 
   bool sd_mode_;
+  bool alarm_pol_;
+  
   optional<uint16_t> conv_t_;
 
   uint16_t chip_ver;

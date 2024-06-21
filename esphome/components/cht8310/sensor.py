@@ -28,6 +28,7 @@ CONF_MAX_HUMID = "max_humid"
 CONF_MIN_HUMID = "min_humid"
 
 CONF_CONV_T = "conv_time"
+CONF_ALARM_POL = "alarm_pol"
 
 CONFIG_SCHEMA = (
     cv.Schema(
@@ -68,6 +69,7 @@ CONFIG_SCHEMA = (
             {
                 cv.Optional(CONF_SD_MODE, default=True): cv.boolean,
                 cv.Optional(CONF_CONV_T, default=4): cv.int_range(0, 0x0F, True, True),
+                cv.Optional(CONF_ALARM_POL, default=False): cv.boolean,
             }
         )
     )

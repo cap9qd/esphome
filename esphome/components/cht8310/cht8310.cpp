@@ -35,32 +35,22 @@ void CHT8310Component::setup() {
     return;
   }
 
-  if (sd_mode_) {
-    // Enable SD and leave the rest default
-    const uint8_t data[2] = {0x48, 0x80};
-    if (!this->write_bytes(CHT8310_REG_CONFIG, data, 2)) {
-      // as instruction is same as powerup defaults (for now), interpret as warning if this fails
-      ESP_LOGW(TAG, "CHT8310 initial config instruction error");
-      this->status_set_warning();
-      return;
-    }
-  } else {
-    // Disable SD and leave the rest default
-    const uint8_t data[2] = {0x08, 0x80};
-    if (!this->write_bytes(CHT8310_REG_CONFIG, data, 2)) {
-      // as instruction is same as powerup defaults (for now), interpret as warning if this fails
-      ESP_LOGW(TAG, "CHT8310 initial config instruction error");
-      this->status_set_warning();
-      return;
-    }
+  uint16_t config_reg = 0x0880;
+  config_reg |= (alarm_pol_ << 5);
+  config_reg |= (sd_mode_ << 15);
 
-    uint16_t conv_time = i2c::htoi2cs((*conv_t_ & 0x0007)<<8);
-    if (this->write_register(CHT8310_REG_CONVERT_RATE, reinterpret_cast<uint8_t *>(&conv_time), 2, 1) != i2c::ERROR_OK) {
-      // as instruction is same as powerup defaults (for now), interpret as warning if this fails
-      ESP_LOGW(TAG, "CHT8310 conversion time config error");
-      this->status_set_warning();
-      return;
-    }
+  config_reg = i2c::htoi2cs(config_reg);
+  if (this->write_register(CHT8310_REG_CONFIG, reinterpret_cast<uint8_t *>(&config_reg), 2, 1) != i2c::ERROR_OK) {
+    ESP_LOGW(TAG, "CHT8310 config error");
+    this->status_set_warning();
+    return;
+  }
+
+  uint16_t conv_time = i2c::htoi2cs((*conv_t_ & 0x0007)<<8);
+  if (this->write_register(CHT8310_REG_CONVERT_RATE, reinterpret_cast<uint8_t *>(&conv_time), 2, 1) != i2c::ERROR_OK) {
+    ESP_LOGW(TAG, "CHT8310 conversion time config error");
+    this->status_set_warning();
+    return;
   }
 }
 void CHT8310Component::dump_config() {
