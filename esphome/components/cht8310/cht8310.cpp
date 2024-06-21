@@ -37,7 +37,7 @@ void CHT8310Component::setup() {
 
   uint16_t config_reg = 0x0880;
   config_reg |= (alarm_pol_ << 5);
-  config_reg |= (sd_mode_ << 15);
+  config_reg |= (sd_mode_ << 14);
 
   config_reg = i2c::htoi2cs(config_reg);
   if (this->write_register(CHT8310_REG_CONFIG, reinterpret_cast<uint8_t *>(&config_reg), 2, 1) != i2c::ERROR_OK) {
