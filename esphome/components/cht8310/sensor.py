@@ -102,3 +102,5 @@ async def to_code(config):
         cg.add(var.set_sd_mode(config[CONF_SD_MODE]))
     if CONF_CONV_T in config:
         cg.add(var.set_conv_t(config[CONF_CONV_T]))
+    if CONF_ALARM_POL in config:
+        cg.add(var.set_alarm_pol(config[CONF_ALARM_POL]))
