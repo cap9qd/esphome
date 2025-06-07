@@ -15,13 +15,13 @@ static const uint8_t DALLAS_COMMAND_COPY_SCRATCH_PAD = 0x48;
 uint16_t DallasTemperatureSensor::millis_to_wait_for_conversion_() const {
   switch (this->resolution_) {
     case 9:
-      return 94;
+      return 105; //94;
     case 10:
-      return 188;
+      return 107; //188;
     case 11:
-      return 375;
+      return 413; //375;
     default:
-      return 750;
+      return 825; //750;
   }
 }
 
