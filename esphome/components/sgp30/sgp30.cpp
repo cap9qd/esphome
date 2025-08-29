@@ -33,8 +33,6 @@ const uint32_t SHORTEST_BASELINE_STORE_INTERVAL = 3600;
 const uint32_t MAXIMUM_STORAGE_DIFF = 50;
 
 void SGP30Component::setup() {
-  ESP_LOGCONFIG(TAG, "Running setup");
-
   // Serial Number identification
   uint16_t raw_serial_number[3];
   if (!this->get_register(SGP30_CMD_GET_SERIAL_ID, raw_serial_number, 3)) {
@@ -250,9 +248,11 @@ void SGP30Component::dump_config() {
   } else {
     ESP_LOGCONFIG(TAG, "  Serial number: %" PRIu64, this->serial_number_);
     if (this->eco2_baseline_ != 0x0000 && this->tvoc_baseline_ != 0x0000) {
-      ESP_LOGCONFIG(TAG, "  Baseline:");
-      ESP_LOGCONFIG(TAG, "    eCO2 Baseline: 0x%04X", this->eco2_baseline_);
-      ESP_LOGCONFIG(TAG, "    TVOC Baseline: 0x%04X", this->tvoc_baseline_);
+      ESP_LOGCONFIG(TAG,
+                    "  Baseline:\n"
+                    "    eCO2 Baseline: 0x%04X\n"
+                    "    TVOC Baseline: 0x%04X",
+                    this->eco2_baseline_, this->tvoc_baseline_);
     } else {
       ESP_LOGCONFIG(TAG, "  Baseline: No baseline configured");
     }

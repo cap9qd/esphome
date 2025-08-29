@@ -22,7 +22,6 @@ static const size_t SERIAL_NUMBER_LENGTH = 8;
 static const uint8_t MAX_SKIPPED_DATA_CYCLES_BEFORE_ERROR = 5;
 
 void SPS30Component::setup() {
-  ESP_LOGCONFIG(TAG, "Running setup");
   this->write_command(SPS30_CMD_SOFT_RESET);
   /// Deferred Sensor initialization
   this->set_timeout(500, [this]() {
@@ -96,9 +95,10 @@ void SPS30Component::dump_config() {
     }
   }
   LOG_UPDATE_INTERVAL(this);
-  ESP_LOGCONFIG(TAG, "  Serial Number: '%s'", this->serial_number_);
-  ESP_LOGCONFIG(TAG, "  Firmware version v%0d.%0d", (raw_firmware_version_ >> 8),
-                uint16_t(raw_firmware_version_ & 0xFF));
+  ESP_LOGCONFIG(TAG,
+                "  Serial Number: '%s'\n"
+                "  Firmware version v%0d.%0d",
+                this->serial_number_, (raw_firmware_version_ >> 8), uint16_t(raw_firmware_version_ & 0xFF));
   LOG_SENSOR("  ", "PM1.0 Weight Concentration", this->pm_1_0_sensor_);
   LOG_SENSOR("  ", "PM2.5 Weight Concentration", this->pm_2_5_sensor_);
   LOG_SENSOR("  ", "PM4 Weight Concentration", this->pm_4_0_sensor_);
