@@ -292,6 +292,7 @@ CONFIG_SCHEMA = cv.All(
                     unsupported=[VARIANT_ESP32C3], msg_prefix="Wakeup from touch"
                 ),
                 cv.boolean,
+            ),
             cv.Optional(CONF_BK71XX_GPIO_WAKEUP): cv.All(
                 cv.only_on(PLATFORM_BK72XX),
                 cv.ensure_list(
