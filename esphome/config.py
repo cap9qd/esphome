@@ -58,6 +58,10 @@ def iter_component_configs(config):
             yield domain, component, conf
         if component.is_platform_component:
             for p_config in conf:
+                print(domain)
+                print(p_config)
+                print(CONF_PLATFORM)
+                
                 p_name = f"{domain}.{p_config[CONF_PLATFORM]}"
                 platform = get_platform(domain, p_config[CONF_PLATFORM])
                 yield p_name, platform, p_config
