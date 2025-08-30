@@ -293,16 +293,16 @@ CONFIG_SCHEMA = cv.All(
                 ),
                 cv.boolean,
             ),
-            cv.Optional(CONF_BK71XX_GPIO_WAKEUP): cv.ensure_list(
-                cv.All(
-                    cv.Schema(
-                        {
-                            cv.Required(CONF_PIN): pins.internal_gpio_input_pin_schema,
-                            cv.Required(CONF_PIN_MODE): cv.enum(LT_WAKEUP_PIN_MODES, upper=True),
-                        }
-                    ),
-                ),
-            ),
+#            cv.Optional(CONF_BK71XX_GPIO_WAKEUP): cv.ensure_list(
+#                cv.All(
+#                    cv.Schema(
+#                        {
+#                            cv.Required(CONF_PIN): pins.internal_gpio_input_pin_schema,
+#                            cv.Required(CONF_PIN_MODE): cv.enum(LT_WAKEUP_PIN_MODES, upper=True),
+#                        }
+#                    ),
+#                ),
+#            ),
         }
     ).extend(cv.COMPONENT_SCHEMA),
     cv.only_on([PLATFORM_ESP32, PLATFORM_ESP8266, PLATFORM_BK72XX]),
