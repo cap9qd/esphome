@@ -257,7 +257,7 @@ CONFIG_SCHEMA = cv.All(
             cv.GenerateID(): cv.declare_id(DeepSleepComponent),
             cv.Optional(CONF_RUN_DURATION): cv.Any(
                 cv.All(cv.only_on_esp32, WAKEUP_CAUSES_SCHEMA),
-#                cv.All(cv.only_on(PLATFORM_BK72XX), WAKEUP_CAUSES_SCHEMA_LT),
+                cv.All(cv.only_on(PLATFORM_BK72XX), WAKEUP_CAUSES_SCHEMA_LT),
                 cv.positive_time_period_milliseconds,
             ),
             cv.Optional(CONF_SLEEP_DURATION): cv.positive_time_period_milliseconds,
@@ -293,16 +293,16 @@ CONFIG_SCHEMA = cv.All(
                 ),
                 cv.boolean,
             ),
-#            cv.Optional(CONF_BK71XX_GPIO_WAKEUP): cv.ensure_list(
-#                cv.All(
-#                    cv.Schema(
-#                        {
-#                            cv.Required(CONF_PIN): pins.internal_gpio_input_pin_schema,
-#                            cv.Required(CONF_PIN_MODE): cv.enum(LT_WAKEUP_PIN_MODES, upper=True),
-#                        }
-#                    )
-#                )
-#            ),
+            cv.Optional(CONF_BK71XX_GPIO_WAKEUP): cv.ensure_list(
+                cv.All(
+                    cv.Schema(
+                        {
+                            cv.Required(CONF_PIN): pins.internal_gpio_input_pin_schema,
+                            cv.Required(CONF_PIN_MODE): cv.enum(LT_WAKEUP_PIN_MODES, upper=True),
+                        }
+                    ),
+                ),
+            ),
         }
     ).extend(cv.COMPONENT_SCHEMA),
     cv.only_on([PLATFORM_ESP32, PLATFORM_ESP8266, PLATFORM_BK72XX]),
@@ -354,12 +354,12 @@ async def to_code(config):
         )
         cg.add(var.set_ext1_wakeup(struct))
 
-#    if CONF_BK71XX_GPIO_WAKEUP in config:
-#        conf = config[CONF_BK71XX_GPIO_WAKEUP]
-#
-#        for pin in conf:
-#            gpio_pin = await cg.gpio_pin_expression(pin[CONF_PIN])
-#            cg.add(var.set_lt_gpio_wake(gpio_pin, pin[CONF_PIN_MODE]))
+    if CONF_BK71XX_GPIO_WAKEUP in config:
+        conf = config[CONF_BK71XX_GPIO_WAKEUP]
+
+        for pin in conf:
+            gpio_pin = await cg.gpio_pin_expression(pin[CONF_PIN])
+            cg.add(var.set_lt_gpio_wake(gpio_pin, pin[CONF_PIN_MODE]))
 
     if CONF_TOUCH_WAKEUP in config:
         cg.add(var.set_touch_wakeup(config[CONF_TOUCH_WAKEUP]))
