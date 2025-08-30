@@ -254,7 +254,7 @@ WAKEUP_CAUSES_SCHEMA_LT = cv.Schema(
 WAKEUP_PIN_CONF_SCHEMA_LT = cv.Schema(
     {
         cv.Required(CONF_PIN): pins.internal_gpio_input_pin_schema,
-#        cv.Required(CONF_PIN_MODE): cv.enum(LT_WAKEUP_PIN_MODES, upper=True),
+        cv.Required(CONF_PIN_MODE): cv.enum(LT_WAKEUP_PIN_MODES, upper=True),
     }
 )
 
@@ -360,11 +360,8 @@ async def to_code(config):
         conf = config[CONF_BK71XX_GPIO_WAKEUP]
 
         for pin in conf:
-            if CONF_NUMBER in pin.keys():
-                cg.add(var.set_lt_gpio_wake(pin[CONF_NUMBER], pin[CONF_PIN_MODE]))
-            elif CONF_PIN in pin.keys():
-                gpio_pin = await cg.gpio_pin_expression(pin[CONF_PIN])
-                cg.add(var.set_lt_gpio_wake(gpio_pin, pin[CONF_PIN_MODE]))
+            gpio_pin = await cg.gpio_pin_expression(pin[CONF_PIN])
+            cg.add(var.set_lt_gpio_wake(gpio_pin, pin[CONF_PIN_MODE]))
 
     if CONF_TOUCH_WAKEUP in config:
         cg.add(var.set_touch_wakeup(config[CONF_TOUCH_WAKEUP]))
