@@ -306,7 +306,7 @@ CONFIG_SCHEMA = cv.All(
                         }
                     ),
                 ),
-#                validate_pin_number_lt,
+                validate_pin_number_lt,
             ),
         }
     ).extend(cv.COMPONENT_SCHEMA),
@@ -359,16 +359,16 @@ async def to_code(config):
         )
         cg.add(var.set_ext1_wakeup(struct))
 
-    if CONF_BK71XX_GPIO_WAKEUP in config:
-        conf = config[CONF_BK71XX_GPIO_WAKEUP]
-
-        for pin in conf:
-            if CONF_NUMBER in pin.keys():
-                cg.add(var.set_lt_gpio_wake(pin[CONF_NUMBER], pin[CONF_PIN_MODE]))
-            elif CONF_PIN in pin.keys():
-                gpio_pin = await cg.gpio_pin_expression(pin[CONF_PIN])
-                cg.add(var.set_lt_gpio_wake(gpio_pin, pin[CONF_PIN_MODE]))
-
+#    if CONF_BK71XX_GPIO_WAKEUP in config:
+#        conf = config[CONF_BK71XX_GPIO_WAKEUP]
+#
+#        for pin in conf:
+#            if CONF_NUMBER in pin.keys():
+#                cg.add(var.set_lt_gpio_wake(pin[CONF_NUMBER], pin[CONF_PIN_MODE]))
+#            elif CONF_PIN in pin.keys():
+#                gpio_pin = await cg.gpio_pin_expression(pin[CONF_PIN])
+#                cg.add(var.set_lt_gpio_wake(gpio_pin, pin[CONF_PIN_MODE]))
+#
     if CONF_TOUCH_WAKEUP in config:
         cg.add(var.set_touch_wakeup(config[CONF_TOUCH_WAKEUP]))
 
