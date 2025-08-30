@@ -294,11 +294,13 @@ CONFIG_SCHEMA = cv.All(
                 cv.boolean,
             ),
             cv.Optional(CONF_BK71XX_GPIO_WAKEUP): cv.ensure_list(
-                cv.Schema(
-                    {
-                        cv.Required(CONF_PIN): pins.internal_gpio_input_pin_schema,
-                        cv.Required(CONF_PIN_MODE): cv.enum(LT_WAKEUP_PIN_MODES, upper=True),
-                    }
+                cv.All(
+                    cv.Schema(
+                        {
+                            cv.Required(CONF_PIN): pins.internal_gpio_input_pin_schema,
+                            cv.Required(CONF_PIN_MODE): cv.enum(LT_WAKEUP_PIN_MODES, upper=True),
+                        }
+                    )
                 )
             ),
         }
