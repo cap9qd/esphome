@@ -354,12 +354,12 @@ async def to_code(config):
         )
         cg.add(var.set_ext1_wakeup(struct))
 
-    if CONF_BK71XX_GPIO_WAKEUP in config:
-        conf = config[CONF_BK71XX_GPIO_WAKEUP]
-
-        for pin in conf:
-            gpio_pin = await cg.gpio_pin_expression(pin[CONF_PIN])
-            cg.add(var.set_lt_gpio_wake(gpio_pin, pin[CONF_PIN_MODE]))
+#    if CONF_BK71XX_GPIO_WAKEUP in config:
+#        conf = config[CONF_BK71XX_GPIO_WAKEUP]
+#
+#        for pin in conf:
+#            gpio_pin = await cg.gpio_pin_expression(pin[CONF_PIN])
+#            cg.add(var.set_lt_gpio_wake(gpio_pin, pin[CONF_PIN_MODE]))
 
     if CONF_TOUCH_WAKEUP in config:
         cg.add(var.set_touch_wakeup(config[CONF_TOUCH_WAKEUP]))
