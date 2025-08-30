@@ -306,7 +306,7 @@ CONFIG_SCHEMA = cv.All(
                         }
                     ),
                 ),
-                validate_pin_number_lt,
+#                validate_pin_number_lt,
             ),
         }
     ).extend(cv.COMPONENT_SCHEMA),
