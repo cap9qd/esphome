@@ -257,7 +257,7 @@ CONFIG_SCHEMA = cv.All(
             cv.GenerateID(): cv.declare_id(DeepSleepComponent),
             cv.Optional(CONF_RUN_DURATION): cv.Any(
                 cv.All(cv.only_on_esp32, WAKEUP_CAUSES_SCHEMA),
-                cv.All(cv.only_on(PLATFORM_BK72XX), WAKEUP_CAUSES_SCHEMA_LT),
+#                cv.All(cv.only_on(PLATFORM_BK72XX), WAKEUP_CAUSES_SCHEMA_LT),
                 cv.positive_time_period_milliseconds,
             ),
             cv.Optional(CONF_SLEEP_DURATION): cv.positive_time_period_milliseconds,
