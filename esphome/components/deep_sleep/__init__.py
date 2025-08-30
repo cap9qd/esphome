@@ -298,7 +298,7 @@ CONFIG_SCHEMA = cv.All(
                     cv.Schema(
                         {
                             cv.Required(CONF_PIN): pins.internal_gpio_input_pin_schema,
-                            cv.Optional(CONF_PIN_MODE): cv.enum(LT_WAKEUP_PIN_MODES, upper=True),
+                            cv.Required(CONF_PIN_MODE): cv.enum(LT_WAKEUP_PIN_MODES, upper=True),
                         }
                     ),
                 ),
@@ -358,10 +358,7 @@ async def to_code(config):
         conf = config[CONF_BK71XX_GPIO_WAKEUP]
         for pin in conf:
             gpio_pin = await cg.gpio_pin_expression(pin[CONF_PIN])
-            if CONF_PIN_MODE in pin:
-                cg.add(var.set_lt_gpio_wake(gpio_pin, pin[CONF_PIN_MODE]))
-            else:
-                cg.add(var.set_lt_gpio_wake(gpio_pin, 0))
+            cg.add(var.set_lt_gpio_wake(gpio_pin, pin[CONF_PIN_MODE]))
 
     if CONF_TOUCH_WAKEUP in config:
         cg.add(var.set_touch_wakeup(config[CONF_TOUCH_WAKEUP]))
