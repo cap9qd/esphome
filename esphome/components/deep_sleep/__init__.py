@@ -253,8 +253,8 @@ WAKEUP_CAUSES_SCHEMA_LT = cv.Schema(
 
 WAKEUP_PIN_CONF_SCHEMA_LT = cv.Schema(
     {
-        cv.Optional(CONF_NUMBER): cv.int_,
-        cv.Optional(CONF_PIN): pins.internal_gpio_input_pin_schema,
+        cv.Required(CONF_NUMBER): cv.int_,
+#        cv.Required(CONF_PIN): pins.internal_gpio_input_pin_schema,
         cv.Required(CONF_PIN_MODE): cv.enum(LT_WAKEUP_PIN_MODES, upper=True),
     }
 )
@@ -305,7 +305,7 @@ CONFIG_SCHEMA = cv.All(
             cv.Optional(CONF_BK71XX_GPIO_WAKEUP): cv.All(
                 cv.only_on(PLATFORM_BK72XX),
                 cv.ensure_list(WAKEUP_PIN_CONF_SCHEMA_LT),
-                validate_pin_number_lt,
+#                validate_pin_number_lt,
             ),
         }
     ).extend(cv.COMPONENT_SCHEMA),
