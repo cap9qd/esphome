@@ -437,5 +437,6 @@ FILTER_SOURCE_FILES = filter_source_files_from_platform(
             PlatformFramework.ESP32_IDF,
         },
         "deep_sleep_esp8266.cpp": {PlatformFramework.ESP8266_ARDUINO},
+        "deep_sleep_bk7231.cpp": {PlatformFramework.BK72XX_ARDUINO},
     }
 )
