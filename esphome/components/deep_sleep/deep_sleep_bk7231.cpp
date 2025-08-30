@@ -39,20 +39,22 @@ bool DeepSleepComponent::prepare_to_sleep_() {
           break;
         case WAKEUP_PIN_MODE_LOW_KEEP_AWAKE:
           if (digital_val == false) {
-            if (clear_to_sleep) {
+            if (!this->next_enter_deep_sleep_) {
               this->status_set_warning();
               ESP_LOGW(TAG, "Waiting for pin %d to switch state to %d to enter deep sleep...", i.first, !i.second);
             }
             clear_to_sleep = false;
+            this->next_enter_deep_sleep_ = true;
           }
           break;
         case WAKEUP_PIN_MODE_HIGH_KEEP_AWAKE:
           if (digital_val == true) {
-            if (clear_to_sleep) {
+            if (!this->next_enter_deep_sleep_) {
               this->status_set_warning();
               ESP_LOGW(TAG, "Waiting for pin %d to switch state to %d to enter deep sleep...", i.first, !i.second);
             }
             clear_to_sleep = false;
+            this->next_enter_deep_sleep_ = true;
           }
           break;
       }
