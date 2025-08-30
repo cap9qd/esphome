@@ -37,6 +37,7 @@ enum WakeupPinMode {
    */
   WAKEUP_PIN_MODE_INVERT_WAKEUP,
 };
+#endif
 
 #if defined(USE_ESP32) && !defined(USE_ESP32_VARIANT_ESP32C3)
 struct Ext1Wakeup {
@@ -145,6 +146,7 @@ class DeepSleepComponent : public Component {
 
   optional<bool> touch_wakeup_;
 #endif
+
 #if defined(USE_ESP32) || defined(USE_BK72XX)
   optional<WakeupCauseToRunDuration> wakeup_cause_to_run_duration_;
 #endif
