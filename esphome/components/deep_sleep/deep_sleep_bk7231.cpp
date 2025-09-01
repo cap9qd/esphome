@@ -43,7 +43,7 @@ bool DeepSleepComponent::prepare_to_sleep_() {
           if (digital_val == false) {
             if (!this->next_enter_deep_sleep_) {
               this->status_set_warning();
-              ESP_LOGW(TAG, "Waiting for pin %d to switch state to %d to enter deep sleep...", i.first->get_pin(),
+              ESP_LOGD(TAG, "Waiting for pin %d to switch state to %d to enter deep sleep...", i.first->get_pin(),
                        !i.second);
             }
             clear_to_sleep = false;
@@ -54,7 +54,7 @@ bool DeepSleepComponent::prepare_to_sleep_() {
           if (digital_val == true) {
             if (!this->next_enter_deep_sleep_) {
               this->status_set_warning();
-              ESP_LOGW(TAG, "Waiting for pin %d to switch state to %d to enter deep sleep...", i.first->get_pin(),
+              ESP_LOGD(TAG, "Waiting for pin %d to switch state to %d to enter deep sleep...", i.first->get_pin(),
                        !i.second);
             }
             clear_to_sleep = false;
@@ -80,9 +80,9 @@ void DeepSleepComponent::deep_sleep_() {
         case WAKEUP_PIN_MODE_LOW_IGNORE:
           if (digital_val == false) {
             lt_deep_sleep_unset_gpio(1 << i.first->get_pin());
-            ESP_LOGW(TAG, "Pin %d already in desired state LOW; ignoring...", i.first->get_pin());
+            ESP_LOGD(TAG, "Pin %d already in desired state LOW; ignoring...", i.first->get_pin());
             if (!this->sleep_duration_.has_value())
-              ESP_LOGW(TAG, "No sleep duration and ignoring GPIO wake. May never wakeup?");
+              ESP_LOGD(TAG, "No sleep duration and ignoring GPIO wake. May never wakeup?");
           } else {
             lt_deep_sleep_config_gpio(1 << i.first->get_pin(), false);
           }
@@ -90,24 +90,24 @@ void DeepSleepComponent::deep_sleep_() {
         case WAKEUP_PIN_MODE_HIGH_IGNORE:
           if (digital_val == true) {
             lt_deep_sleep_unset_gpio(1 << i.first->get_pin());
-            ESP_LOGW(TAG, "Pin %d already in desired state HIGH; ignoring...", i.first->get_pin());
+            ESP_LOGD(TAG, "Pin %d already in desired state HIGH; ignoring...", i.first->get_pin());
             if (!this->sleep_duration_.has_value())
-              ESP_LOGW(TAG, "No sleep duration and ignoring GPIO wake. May never wakeup?");
+              ESP_LOGD(TAG, "No sleep duration and ignoring GPIO wake. May never wakeup?");
           } else {
             lt_deep_sleep_config_gpio(1 << i.first->get_pin(), true);
           }
           break;
         case WAKEUP_PIN_MODE_SWAP_LEVEL:
-          ESP_LOGW(TAG, "Swapping pin %d wake-up level to %d", i.first->get_pin(), !digital_val);
+          ESP_LOGD(TAG, "Swapping pin %d wake-up level to %d", i.first->get_pin(), !digital_val);
           lt_deep_sleep_unset_gpio(1 << i.first->get_pin());
           lt_deep_sleep_config_gpio(1 << i.first->get_pin(), !digital_val);
           break;
         case WAKEUP_PIN_MODE_LOW_KEEP_AWAKE:
-          ESP_LOGW(TAG, "Setup Pin-Mode LOW!");
+          ESP_LOGD(TAG, "Setup Pin-Mode LOW!");
           lt_deep_sleep_config_gpio(1 << i.first->get_pin(), false);
           break;
         case WAKEUP_PIN_MODE_HIGH_KEEP_AWAKE:
-          ESP_LOGW(TAG, "Setup Pin-Mode HIGH!");
+          ESP_LOGD(TAG, "Setup Pin-Mode HIGH!");
           lt_deep_sleep_config_gpio(1 << i.first->get_pin(), true);
           break;
       }
