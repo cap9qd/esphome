@@ -107,7 +107,7 @@ class DeepSleepComponent : public Component {
 #endif
 
 #if defined(USE_BK72XX)
-  void set_lt_gpio_wake(uint8_t pin, LtWakeupPinMode pin_mode);
+  //  void set_lt_gpio_wake(uint8_t pin, LtWakeupPinMode pin_mode);
   void set_lt_gpio_wake(InternalGPIOPin *pin, LtWakeupPinMode pin_mode);
 #endif
 
@@ -152,7 +152,7 @@ class DeepSleepComponent : public Component {
 #endif
 
 #ifdef USE_BK72XX
-  std::map<uint8_t, LtWakeupPinMode> lt_gpio_wake_config_;
+  std::map<InternalGPIOPin, LtWakeupPinMode> lt_gpio_wake_config_;
   LtWakeupPinMode lt_wakeup_pin_mode_;
 #endif
 
