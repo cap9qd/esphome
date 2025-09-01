@@ -31,7 +31,9 @@ bool DeepSleepComponent::prepare_to_sleep_() {
   bool clear_to_sleep = true;
   if (lt_gpio_wake_config_.size() > 0) {
     for (auto const &i : lt_gpio_wake_config_) {
-      bool digital_val = digitalRead(i.first);
+      bool digital_val = i.first->digital_read();
+      bool level = i.first->is_inverted();
+
       switch (i.second) {
         case WAKEUP_PIN_MODE_LOW_IGNORE:
         case WAKEUP_PIN_MODE_HIGH_IGNORE:
@@ -41,7 +43,8 @@ bool DeepSleepComponent::prepare_to_sleep_() {
           if (digital_val == false) {
             if (!this->next_enter_deep_sleep_) {
               this->status_set_warning();
-              ESP_LOGW(TAG, "Waiting for pin %d to switch state to %d to enter deep sleep...", i.first, !i.second);
+              ESP_LOGW(TAG, "Waiting for pin %d to switch state to %d to enter deep sleep...", i.first->get_pin(),
+                       !i.second);
             }
             clear_to_sleep = false;
             this->next_enter_deep_sleep_ = true;
@@ -51,7 +54,8 @@ bool DeepSleepComponent::prepare_to_sleep_() {
           if (digital_val == true) {
             if (!this->next_enter_deep_sleep_) {
               this->status_set_warning();
-              ESP_LOGW(TAG, "Waiting for pin %d to switch state to %d to enter deep sleep...", i.first, !i.second);
+              ESP_LOGW(TAG, "Waiting for pin %d to switch state to %d to enter deep sleep...", i.first->get_pin(),
+                       !i.second);
             }
             clear_to_sleep = false;
             this->next_enter_deep_sleep_ = true;
@@ -69,7 +73,8 @@ void DeepSleepComponent::deep_sleep_() {
   if (lt_gpio_wake_config_.size() > 0) {
     // for (i = lt_gpio_wake_config_.begin(); i != lt_gpio_wake_config_.end(); i++) {
     for (auto const &i : lt_gpio_wake_config_) {
-      bool digital_val = digitalRead(i.first->get_pin());
+      bool digital_val = i.first->digital_read();
+      bool level = i.first->is_inverted();
 
       switch (i.second) {
         case WAKEUP_PIN_MODE_LOW_IGNORE:
