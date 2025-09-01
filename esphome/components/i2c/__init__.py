@@ -39,7 +39,7 @@ I2CDevice = i2c_ns.class_("I2CDevice")
 CONF_SDA_PULLUP_ENABLED = "sda_pullup_enabled"
 CONF_SCL_PULLUP_ENABLED = "scl_pullup_enabled"
 MULTI_CONF = True
-                          
+CONF_SOFTWIRE = "softwire"                          
 
 
 def _bus_declare_type(value):
