@@ -74,7 +74,7 @@ CONFIG_SCHEMA = cv.All(
             ),
             cv.Optional(CONF_TIMEOUT): cv.positive_time_period,
             cv.Optional(CONF_SCAN, default=True): cv.boolean,
-                                                                  
+            cv.Optional(CONF_SOFTWIRE, default=False): cv.boolean,                                                      
         }
     ).extend(cv.COMPONENT_SCHEMA),
     cv.only_on([PLATFORM_ESP32, PLATFORM_ESP8266, PLATFORM_RP2040, PLATFORM_BK72XX]),
