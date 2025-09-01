@@ -98,9 +98,11 @@ void DeepSleepComponent::deep_sleep_() {
           lt_deep_sleep_config_gpio(1 << i.first, !digital_val);
           break;
         case WAKEUP_PIN_MODE_LOW_KEEP_AWAKE:
+          ESP_LOGW(TAG, "Setup Pin-Mode LOW!");
           lt_deep_sleep_config_gpio(1 << i.first, false);
           break;
         case WAKEUP_PIN_MODE_HIGH_KEEP_AWAKE:
+          ESP_LOGW(TAG, "Setup Pin-Mode HIGH!");
           lt_deep_sleep_config_gpio(1 << i.first, true);
           break;
       }
