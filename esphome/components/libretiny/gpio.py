@@ -176,6 +176,8 @@ def validate_gpio_usage(value):
         (True, False, False, False, True),
         # OUTPUT_OPEN_DRAIN
         (False, True, True, False, False),
+        # INPUT_OUTPUT_I2C
+        (True, True, False, False, False),
     }
     key = (is_input, is_output, is_open_drain, is_pullup, is_pulldown)
     if key not in supported_modes:
