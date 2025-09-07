@@ -63,7 +63,7 @@ void GosundLight::loop() {
       // Brightness returned is 0x01 - 0x64 for v1
       // Brightness returned is 0x01 - 0x96 for v2
       //dimmerVal = tBuffer[1] / MAX_VALUE;
-      dimmerVal = remap<float, uint8_t>(tBuffer[1], MIN_VALUE, MAX_VALUE, this->min_brightness_, this->max_brightness_)/100.0;
+      dimmerVal = remap<float, uint8_t>(tBuffer[1], MIN_VALUE, MAX_VALUE, 0.0, 1.0);
       
       // Clear buffer so we dont trigger more than 1 time per message.
       memset(&tBuffer[0], 0, 5);
@@ -114,13 +114,14 @@ light::LightTraits GosundLight::get_traits() {
 
 void GosundLight::write_state(light::LightState *state) {
   auto values = state->current_values;
-
-  uint8_t output = std::min(MAX_PERCENT, (uint8_t) (100.0 * values.get_brightness()));
+  float scaled_brightness = remap<float, float>(values.get_brightness(), 0.0, 1.0, this->min_brightness_, this->max_brightness_);
+  
+  uint8_t output = std::min(MAX_PERCENT, (uint8_t) (scaled_brightness));
   output = std::max(MIN_PERCENT, output);
 
   uint8_t ledOut = std::max(MIN_PERCENT, (uint8_t) std::ceil(values.get_brightness() * 7.0));
 
-  if (values.get_state() > 0 && values.get_brightness() > 0) {
+  if (values.get_state() > 0 && scaled_brightness > 0) {
     status_led_->turn_on();
 
     if (debugPrint) {
