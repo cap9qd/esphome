@@ -114,18 +114,16 @@ light::LightTraits GosundLight::get_traits() {
 
 void GosundLight::write_state(light::LightState *state) {
   auto values = state->current_values;
-  uint8_t output = remap<float, uint8_t>(values.get_brightness(), 0.0, 1.0, this->min_brightness_, this->max_brightness_);
   
-  //uint8_t output = std::min(MAX_PERCENT, (uint8_t) (scaled_brightness));
-  //output = std::max(MIN_PERCENT, output);
-
+  float brightness = remap<float, float>(values.get_brightness(), 0.0, 1.0, this->min_brightness_, this->max_brightness_);
+  uint8_t output = (uint8_t) (brightness);
   uint8_t ledOut = std::max(MIN_PERCENT, (uint8_t) std::ceil(values.get_brightness() * 7.0));
 
   if (values.get_state() > 0) {
     status_led_->turn_on();
 
     if (debugPrint) {
-      ESP_LOGD(TAG, "turning on status LED");
+      ESP_LOGD(TAG, "Turning on status LED");
     }
 
     // Last bit indicates ON/OFF state; last bits 0-100% level.
