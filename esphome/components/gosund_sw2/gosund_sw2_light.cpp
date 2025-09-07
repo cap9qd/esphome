@@ -60,8 +60,9 @@ void GosundLight::loop() {
 
       // Brightness returned is 0x01 - 0x64 for v1
       // Brightness returned is 0x01 - 0x96 for v2
-      dimmerVal = tBuffer[1] / MAX_VALUE;
-
+      //dimmerVal = tBuffer[1] / MAX_VALUE;
+      dimmerVal = remap<float, uint8_t>(tBuffer[1], MIN_VALUE, MAX_VALUE, this->min_brightness_, this->max_brightness_);
+      
       // Clear buffer so we dont trigger more than 1 time per message.
       memset(&tBuffer[0], 0, 5);
 
@@ -131,8 +132,15 @@ void GosundLight::write_state(light::LightState *state) {
     if (mcuVer == 2) {
       ledOut |= 0x40;  // Indicates LED message
       write_byte(ledOut);
+      if (debugPrint) {
+        ESP_LOGD(TAG, "UART write LED command '0x%02X'", ledOut);
+      }
     }
+    
     write_byte(output);
+    if (debugPrint) {
+      ESP_LOGD(TAG, "UART write output command '0x%02X'", output);
+    }
   } else {
     status_led_->turn_off();
 
@@ -143,9 +151,15 @@ void GosundLight::write_state(light::LightState *state) {
     switch (mcuVer) {
       case 1:
         write(output & 0x7F);  // Tell it which level LED to keep on during off
+        if (debugPrint) {
+          ESP_LOGD(TAG, "UART write output command '0x%02X'", output & 0x7F);
+        }
         break;
       case 2:
         write(ledOut & 0x07);  // Tell it which level LED to keep on during off
+        if (debugPrint) {
+          ESP_LOGD(TAG, "UART write output command '0x%02X'", output & 0x07);
+        }
         break;
     }
   }
