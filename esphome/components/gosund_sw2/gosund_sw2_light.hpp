@@ -23,7 +23,7 @@ class GosundLight : public Component, public light::LightOutput, public uart::UA
 
   void set_min_max_brightness(float min_brightness, float max_brightness) { 
    min_brightness_ = min(100.0, max(100.0, min_brightness)); 
-   max_brightness_ = min(100.0, max(min_brightness, max_brightness));
+   max_brightness_ = min(100.0, max(min_brightness + 1.0, max_brightness));
   }
   
  protected:
