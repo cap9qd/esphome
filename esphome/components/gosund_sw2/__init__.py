@@ -3,6 +3,8 @@ from esphome.components import light, output, uart
 import esphome.config_validation as cv
 from esphome.const import (
     CONF_OUTPUT_ID,
+    CONF_MAX_BRIGHTNESS,
+    CONF_MIN_BRIGHTNESS,
     CONF_GAMMA_CORRECT,
     CONF_DEFAULT_TRANSITION_LENGTH,
     PLATFORM_ESP8266,
@@ -31,6 +33,8 @@ CONFIG_SCHEMA = cv.All(
                 CONF_DEFAULT_TRANSITION_LENGTH, default="0s"
             ): cv.positive_time_period_milliseconds,
             cv.Optional(CONF_DEBUG): cv.boolean,
+            cv.Optional(CONF_MIN_BRIGHTNESS, default=0.0): cv.float,
+            cv.Optional(CONF_MAX_BRIGHTNESS, default=100.0): cv.float,
         }
     )
     .extend(cv.COMPONENT_SCHEMA)
@@ -49,5 +53,11 @@ async def to_code(config):
     if CONF_DEBUG in config:
         cg.add(var.set_debug(config[CONF_DEBUG]))
 
+    if CONF_MIN_BRIGHTNESS in config:
+        cg.add(var.set_min_brightness(conf[CONF_MIN_BRIGHTNESS]);
+    if CONF_MAX_BRIGHTNESS in config:
+        cg.add(var.set_max_brightness(conf[CONF_MAX_BRIGHTNESS]);
+    
+    
     light_ = await cg.get_variable(config[CONF_STATUS_OUTPUT])
     cg.add(var.set_light(light_))
