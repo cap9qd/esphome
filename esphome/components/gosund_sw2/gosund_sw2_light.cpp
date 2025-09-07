@@ -114,10 +114,10 @@ light::LightTraits GosundLight::get_traits() {
 
 void GosundLight::write_state(light::LightState *state) {
   auto values = state->current_values;
-  float scaled_brightness = remap<float, float>(values.get_brightness(), 0.0, 1.0, this->min_brightness_, this->max_brightness_);
+  uint8_t output = remap<float, uint8_t>(values.get_brightness(), 0.0, 1.0, this->min_brightness_, this->max_brightness_);
   
-  uint8_t output = std::min(MAX_PERCENT, (uint8_t) (scaled_brightness));
-  output = std::max(MIN_PERCENT, output);
+  //uint8_t output = std::min(MAX_PERCENT, (uint8_t) (scaled_brightness));
+  //output = std::max(MIN_PERCENT, output);
 
   uint8_t ledOut = std::max(MIN_PERCENT, (uint8_t) std::ceil(values.get_brightness() * 7.0));
 
