@@ -33,7 +33,7 @@ CONFIG_SCHEMA = cv.All(
                 CONF_DEFAULT_TRANSITION_LENGTH, default="0s"
             ): cv.positive_time_period_milliseconds,
             cv.Optional(CONF_DEBUG): cv.boolean,
-            cv.Optional(CONF_MIN_BRIGHTNESS, default=0.0):  cv.positive_float,
+            cv.Optional(CONF_MIN_BRIGHTNESS, default=1.0):  cv.positive_float,
             cv.Optional(CONF_MAX_BRIGHTNESS, default=100.0):  cv.positive_float,
         }
     )
