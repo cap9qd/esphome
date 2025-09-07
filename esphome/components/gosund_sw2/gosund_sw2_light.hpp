@@ -21,9 +21,11 @@ class GosundLight : public Component, public light::LightOutput, public uart::UA
   void set_mcu_version(int mcu_ver);
   void set_light(output::BinaryOutput *light) { this->status_led_ = light; }
 
-  void set_min_brightness(float min_brightness) { min_brightness_ = min_brightness; }
-  void set_max_brightness(float max_brightness) { max_brightness_ = max_brightness; }
-
+  void set_min_max_brightness(float min_brightness, float max_brightness) { 
+   min_brightness_ = min(100.0, max(100.0, min_brightness)); 
+   max_brightness_ = min(100.0, max(min_brightness, max_brightness));
+  }
+  
  protected:
   light::LightState *state_{nullptr};
   output::BinaryOutput *status_led_;
