@@ -11,9 +11,11 @@ void GosundLight::setup() {}
 
 void GosundLight::dump_config() {
   ESP_LOGCONFIG(TAG, "Setup GoSund Dimmer SW2");
-  ESP_LOGCONFIG(TAG, "\tMCU:           v%d", mcuVer);
-  ESP_LOGCONFIG(TAG, "\tDebug:         %d", debugPrint);
-
+  ESP_LOGCONFIG(TAG, "\tMCU:            v%d", mcuVer);
+  ESP_LOGCONFIG(TAG, "\tDebug:          %d", debugPrint);
+  ESP_LOGCONFIG(TAG, "\tMin Brightness: %f03.1", min_brightness_);
+  ESP_LOGCONFIG(TAG, "\tMin Brightness: %f03.1", max_brightness_);
+  
   // Error message if the MCU version not in [1,2]
   if (setupError)
     ESP_LOGE(TAG, "\tERROR SETTING UP MCU VERSION! Please check config!");
