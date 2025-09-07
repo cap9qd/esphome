@@ -121,7 +121,7 @@ void GosundLight::write_state(light::LightState *state) {
 
   uint8_t ledOut = std::max(MIN_PERCENT, (uint8_t) std::ceil(values.get_brightness() * 7.0));
 
-  if (values.get_state() > 0 && scaled_brightness > 0) {
+  if (values.get_state() > 0 && output > 0) {
     status_led_->turn_on();
 
     if (debugPrint) {
