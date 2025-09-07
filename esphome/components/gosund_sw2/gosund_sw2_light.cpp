@@ -61,7 +61,7 @@ void GosundLight::loop() {
       // Brightness returned is 0x01 - 0x64 for v1
       // Brightness returned is 0x01 - 0x96 for v2
       //dimmerVal = tBuffer[1] / MAX_VALUE;
-      dimmerVal = remap<float, uint8_t>(tBuffer[1], MIN_VALUE, MAX_VALUE, this->min_brightness_, this->max_brightness_);
+      dimmerVal = remap<float, uint8_t>(tBuffer[1], MIN_VALUE, MAX_VALUE, this->min_brightness_, this->max_brightness_)/100.0;
       
       // Clear buffer so we dont trigger more than 1 time per message.
       memset(&tBuffer[0], 0, 5);
