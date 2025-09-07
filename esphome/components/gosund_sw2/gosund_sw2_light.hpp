@@ -42,7 +42,7 @@ class GosundLight : public Component, public light::LightOutput, public uart::UA
   const uint8_t MIN_PERCENT = 1;
 
   float MAX_VALUE = 100.0;
-  float MIN_VALUE =   0.0;
+  float MIN_VALUE =   1.0;
 
   bool setupError = 0;
 };
