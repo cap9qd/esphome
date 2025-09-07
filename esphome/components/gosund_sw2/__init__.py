@@ -54,7 +54,7 @@ async def to_code(config):
         cg.add(var.set_debug(config[CONF_DEBUG]))
 
     if CONF_MIN_BRIGHTNESS in config and CONF_MAX_BRIGHTNESS in config:
-        cg.add(var.set_min_max_brightness(config[CONF_MAX_BRIGHTNESS], config[CONF_MAX_BRIGHTNESS]))
+        cg.add(var.set_min_max_brightness(config[CONF_MIN_BRIGHTNESS], config[CONF_MAX_BRIGHTNESS]))
     
     light_ = await cg.get_variable(config[CONF_STATUS_OUTPUT])
     cg.add(var.set_light(light_))
