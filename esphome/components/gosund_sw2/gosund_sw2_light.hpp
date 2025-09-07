@@ -39,7 +39,7 @@ class GosundLight : public Component, public light::LightOutput, public uart::UA
   float max_brightness_ = 100.0;
 
   const uint8_t MAX_PERCENT = 100;
-  const uint8_t MIN_PERCENT = 0;
+  const uint8_t MIN_PERCENT = 1;
 
   float MAX_VALUE = 100.0;
   float MIN_VALUE =   1.0;
