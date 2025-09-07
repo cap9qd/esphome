@@ -22,8 +22,8 @@ class GosundLight : public Component, public light::LightOutput, public uart::UA
   void set_light(output::BinaryOutput *light) { this->status_led_ = light; }
 
   void set_min_max_brightness(float min_brightness, float max_brightness) { 
-   min_brightness_ = min(100.0, max(100.0, min_brightness)); 
-   max_brightness_ = min(100.0, max(min_brightness + 1.0, max_brightness));
+   min_brightness_ = min(100.0, max(100.0, min_brightness))/100.0; 
+   max_brightness_ = min(100.0, max(min_brightness + 1.0, max_brightness))/100.0;
   }
   
  protected:
@@ -35,8 +35,8 @@ class GosundLight : public Component, public light::LightOutput, public uart::UA
   const char *TAG = "gosund.light.sw2";
   const byte ON_MASK = 0x80;
 
-  float min_brightness_ =   0.0;
-  float max_brightness_ = 100.0;
+  float min_brightness_ = 0.0;
+  float max_brightness_ = 1.0;
 
   const uint8_t MAX_PERCENT = 100;
   const uint8_t MIN_PERCENT = 1;
