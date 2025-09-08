@@ -28,6 +28,7 @@ void GosundLight::loop() {
   static float dimmerVal = 0.0;
   unsigned int bytes_available = available();
   bool found = false;
+  auto call = state_->make_call();
 
   if (bytes_available > 0) {
     if (debugPrint)
@@ -78,7 +79,6 @@ void GosundLight::loop() {
         ESP_LOGD(TAG, "Received dimmer value: %01.1f", dimmerVal * 100);
       }
 
-      auto call = state_->make_call();
       // Touch sensor only works when turned on
       call.set_state(true);
       call.set_brightness(dimmerVal);
