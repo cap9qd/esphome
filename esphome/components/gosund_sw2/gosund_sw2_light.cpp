@@ -48,8 +48,9 @@ void GosundLight::loop() {
         break;
       }
       if(strcmp(&tBuffer, "reset") == 0 ) {
-        ESP_LOGW(TAG, "Dimmer MCU Reset detected!);
+        ESP_LOGW(TAG, "Dimmer MCU Reset detected!");
         call.set_state(false);
+        found = false;
         break;
       }
     }
