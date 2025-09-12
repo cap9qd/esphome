@@ -63,6 +63,11 @@ void GosundLight::loop() {
         init = found = false;
         break;
       }
+      if(!init) {
+        this->init_string += (char)rByte;
+      }
+      if(debugPrint)
+        ESP_LOGW(tag, init_string);
     }
 
     // MCU v1 = 0x24 0xYY 0x01 0x1E 0x23 where 0xYY is the dimmer value
