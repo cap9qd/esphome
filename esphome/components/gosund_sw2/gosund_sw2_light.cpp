@@ -26,32 +26,41 @@ void GosundLight::loop() {
   static uint8_t mPos = 5;
   static uint8_t tBuffer[5];
   static float dimmerVal = 0.0;
+  static bool init = 0;
+  static String init_string = "";
+
   unsigned int bytes_available = available();
   bool found = false;
   auto call = state_->make_call();
+  uint8_t rByte = 0;
 
   if (bytes_available > 0) {
     if (debugPrint)
       ESP_LOGD(TAG, "UART has %d bytes avaliable.", bytes_available);
 
     for (int i = 0; i < bytes_available; i++) {
+      read_byte(&read_byte);
       for (int j = 0; j < 4; j++)
         tBuffer[j] = tBuffer[j + 1];
-      read_byte(&tBuffer[4]);
-      
+      tBuffer[4] = rByte;
+
       if (debugPrint)
-        ESP_LOGD(TAG, "Read byte '0x%02X'.", tBuffer[4]);
+        ESP_LOGD(TAG, "Read byte '0x%02X'.", rByte);
       
+      if(!init) {
+        init_string += (char)rByte;
+      }
+
       if ((tBuffer[0] == 0x24) && (0x01 == tBuffer[2]) && (0x23 == tBuffer[4])) {
         if (debugPrint)
           ESP_LOGD(TAG, "Found matching string!");
-        found = true;
+        init = found = true;
         break;
       }
       if(strcmp((char*)&tBuffer[0], "reset") == 0 ) {
         ESP_LOGW(TAG, "Dimmer MCU Reset detected!");
         call.set_state(false);
-        found = false;
+        init = found = false;
         break;
       }
     }
