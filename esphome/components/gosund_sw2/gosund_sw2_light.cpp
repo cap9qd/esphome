@@ -60,7 +60,6 @@ void GosundLight::loop() {
     // MCU v2 = 0x24 0xYY 0x01 0x64 0x23 where 0xYY is the dimmer value
     //  (NOTE: v1 MCU swapped byte 3 around between reboots; idk why...)
     if (found) {
-
       // Brightness returned is 0x01 - 0x64 for v1
       // Brightness returned is 0x01 - 0x96 for v2
       //dimmerVal = tBuffer[1] / MAX_VALUE;
