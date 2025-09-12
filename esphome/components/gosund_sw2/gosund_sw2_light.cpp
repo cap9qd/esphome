@@ -39,7 +39,7 @@ void GosundLight::loop() {
       ESP_LOGD(TAG, "UART has %d bytes avaliable.", bytes_available);
 
     for (int i = 0; i < bytes_available; i++) {
-      read_byte(&read_byte);
+      read_byte(&rByte);
       for (int j = 0; j < 4; j++)
         tBuffer[j] = tBuffer[j + 1];
       tBuffer[4] = rByte;
