@@ -45,6 +45,8 @@ class GosundLight : public Component, public light::LightOutput, public uart::UA
   float MIN_VALUE =   0.0;
 
   bool setupError = 0;
+  String init_string = "";
+  
 };
 }  // namespace gosund
 }  // namespace esphome

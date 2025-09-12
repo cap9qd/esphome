@@ -15,6 +15,7 @@ void GosundLight::dump_config() {
   ESP_LOGCONFIG(TAG, "\tDebug:          %d", debugPrint);
   ESP_LOGCONFIG(TAG, "\tMin Brightness: %03.1f", min_brightness_);
   ESP_LOGCONFIG(TAG, "\tMin Brightness: %03.1f", max_brightness_);
+  ESP_LOGCONFIG(TAG, "\tInit String:    %s", init_string);
   
   // Error message if the MCU version not in [1,2]
   if (setupError)
@@ -27,8 +28,7 @@ void GosundLight::loop() {
   static uint8_t tBuffer[5];
   static float dimmerVal = 0.0;
   static bool init = 0;
-  static String init_string = "";
-
+  
   unsigned int bytes_available = available();
   bool found = false;
   auto call = state_->make_call();
@@ -48,7 +48,7 @@ void GosundLight::loop() {
         ESP_LOGD(TAG, "Read byte '0x%02X'.", rByte);
       
       if(!init) {
-        init_string += (char)rByte;
+        this->init_string += (char)rByte;
       }
 
       if ((tBuffer[0] == 0x24) && (0x01 == tBuffer[2]) && (0x23 == tBuffer[4])) {
