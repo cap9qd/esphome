@@ -47,10 +47,6 @@ void GosundLight::loop() {
       if (debugPrint)
         ESP_LOGD(TAG, "Read byte '0x%02X'.", rByte);
       
-      if(!init) {
-        this->init_string += (char)rByte;
-      }
-
       if ((tBuffer[0] == 0x24) && (0x01 == tBuffer[2]) && (0x23 == tBuffer[4])) {
         if (debugPrint)
           ESP_LOGD(TAG, "Found matching string!");
